@@ -6,7 +6,7 @@ import {
     FileText, ChevronDown, ExternalLink, Loader2,
     FolderUp, CheckCircle, AlertCircle, Info, ArrowRight,
     Wand2, Plus, Minus, Sparkles, Eye, Save, RotateCcw,
-    MessageSquare, Table, RefreshCw, Lock
+    MessageSquare, Table, RefreshCw
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import './Datasets.css'
@@ -47,7 +47,7 @@ export default function Datasets() {
     const queryClient = useQueryClient()
     const fileInputRef = useRef(null)
     const { user } = useAuthStore()
-    const isFree = !user?.plan_type || user.plan_type === 'free'
+
 
     /* ── local state ── */
     const [activeTab, setActiveTab] = useState('library')   // library | search | generate
@@ -370,8 +370,7 @@ export default function Datasets() {
                                 {kaggleIsLimited && (
                                     <div className="ds-limit-banner">
                                         <Info size={16} />
-                                        <span>Showing top 5 results on the <strong>Free Tier</strong>. Upgrade to see all results.</span>
-                                        <button className="ds-btn ds-btn-secondary ds-btn-sm" onClick={() => window.location.href='/pricing'}>Upgrade</button>
+                                        <span>Showing top results. More may be available on Kaggle.</span>
                                     </div>
                                 )}
                                 <div className="ds-kaggle-grid">
@@ -432,16 +431,6 @@ export default function Datasets() {
             {/* ════════ AI GENERATE TAB ════════ */}
             {activeTab === 'generate' && (
                 <section className="ds-section">
-                    {isFree ? (
-                        <div className="ds-empty">
-                            <Lock size={48} style={{ color: 'var(--text-muted)' }} />
-                            <h3>Data Generation Locked</h3>
-                            <p>Synthetic AI data generation is only available on Pro and Advance tiers.</p>
-                            <button className="ds-btn ds-btn-primary" onClick={() => window.location.href='/pricing'}>
-                                Upgrade Plan
-                            </button>
-                        </div>
-                    ) : (
                     <div className="ds-ai-container">
                         {/* ── Step Indicator ── */}
                         <div className="ds-ai-steps">
@@ -668,7 +657,6 @@ export default function Datasets() {
                             </div>
                         )}
                     </div>
-                    )}
                 </section>
             )}
 

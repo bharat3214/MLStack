@@ -4,9 +4,9 @@ import { useAuthStore } from '../store/authStore'
 import { useToast } from '../components/ui/use-toast'
 import api from '../services/api'
 import {
-    User, Lock, CreditCard, Crown, Shield, ChevronRight,
-    Eye, EyeOff, Check, X, Zap, Sparkles, LogOut, Mail, Bell,
-    Download, Calendar, History, Wallet, Star, Pencil
+    User, Lock, Shield, ChevronRight,
+    Eye, EyeOff, Check, X, Sparkles, LogOut, Mail, Bell,
+    Pencil
 } from 'lucide-react'
 import './SettingsPage.css'
 
@@ -18,7 +18,6 @@ const TABS = [
     { id: 'profile',       icon: User,       label: 'Profile' },
     { id: 'security',      icon: Lock,       label: 'Security' },
     { id: 'notifications', icon: Bell,       label: 'Notifications' },
-    { id: 'billing',       icon: CreditCard, label: 'Billing & Plan' },
 ]
 
 /* ─── Default notification prefs ─── */
@@ -26,20 +25,14 @@ const DEFAULT_NOTIFS = {
     trainingComplete:  true,
     trainingFailed:    true,
     datasetUploaded:   false,
-    rateLimitWarning:  true,
-    weeklyReport:      false,
     securityAlerts:    true,
-    productUpdates:    false,
 }
 
 const NOTIF_ITEMS = [
     { key: 'trainingComplete', label: 'Training completed',       desc: 'Get notified when a model finishes training.' },
     { key: 'trainingFailed',   label: 'Training failed',          desc: 'Alert me if a training job encounters an error.' },
     { key: 'datasetUploaded',  label: 'Dataset uploaded',         desc: 'Notify when a dataset upload succeeds.' },
-    { key: 'rateLimitWarning', label: 'API rate-limit warning',   desc: 'Warn me when I\'m approaching the request limit.' },
-    { key: 'weeklyReport',     label: 'Weekly usage report',      desc: 'Receive a weekly summary of your usage stats.' },
     { key: 'securityAlerts',   label: 'Security alerts',          desc: 'Get alerts for unusual sign-ins or password changes.' },
-    { key: 'productUpdates',   label: 'Product updates',          desc: 'Hear about new features and platform improvements.' },
 ]
 
 /* camelCase (frontend) ↔ snake_case (backend) mapping */
@@ -47,10 +40,7 @@ const KEY_TO_API = {
     trainingComplete: 'training_completed',
     trainingFailed:   'training_failed',
     datasetUploaded:  'dataset_uploaded',
-    rateLimitWarning: 'api_rate_limit',
-    weeklyReport:     'weekly_report',
     securityAlerts:   'security_alerts',
-    productUpdates:   'product_updates',
 }
 const API_TO_KEY = Object.fromEntries(Object.entries(KEY_TO_API).map(([k, v]) => [v, k]))
 
@@ -74,17 +64,10 @@ export default function SettingsPage() {
     const [showNew, setShowNew] = useState(false)
     const [changingPwd, setChangingPwd] = useState(false)
 
+
     /* ── Notification prefs (server-synced) ── */
     const [notifs, setNotifs] = useState(DEFAULT_NOTIFS)
     const [notifsLoading, setNotifsLoading] = useState(false)
-
-    /* ── Billing History state ── */
-    const [history, setHistory] = useState([])
-    const [billingSummary, setBillingSummary] = useState(null)
-    const [historyLoading, setHistoryLoading] = useState(false)
-    const [historyPage, setHistoryPage] = useState(1)
-    const [historyTotalPages, setHistoryTotalPages] = useState(1)
-    const [billingConfig, setBillingConfig] = useState(null)
 
     /* Fetch prefs from backend when notifications tab is active */
     useEffect(() => {
@@ -129,52 +112,7 @@ export default function SettingsPage() {
         }
     }
 
-    /* ── Razorpay / Billing state ── */
-    const [upgrading, setUpgrading] = useState(false)
-    const [scriptLoaded, setScriptLoaded] = useState(false)
 
-    /* Load Razorpay SDK lazily when billing tab opens */
-    React.useEffect(() => {
-        if (activeTab !== 'billing') return
-        if (document.querySelector('script[src*="razorpay"]')) {
-            setScriptLoaded(true)
-            return
-        }
-        const s = document.createElement('script')
-        s.src = 'https://checkout.razorpay.com/v1/checkout.js'
-        s.async = true
-        s.onload = () => setScriptLoaded(true)
-        document.body.appendChild(s)
-    }, [activeTab])
-
-    /* Fetch Billing History */
-    const fetchHistory = async (page = 1) => {
-        if (activeTab !== 'billing') return
-        setHistoryLoading(true)
-        try {
-            const res = await api.get(`/billing/history?page=${page}`)
-            if (res.data) {
-                setHistory(res.data.payments)
-                setBillingSummary(res.data.summary)
-                setHistoryTotalPages(res.data.pagination.pages)
-                setHistoryPage(res.data.pagination.page)
-            }
-        } catch (err) {
-            console.warn('Failed to load billing history:', err)
-        } finally {
-            setHistoryLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        if (activeTab === 'billing') {
-            fetchHistory(1)
-            fetch(`${API_BASE}/billing/config`)
-                .then(res => res.json())
-                .then(data => setBillingConfig(data))
-                .catch(err => console.error('Failed to load config', err))
-        }
-    }, [activeTab])
 
     /* ─────────── handlers ─────────── */
 
@@ -203,97 +141,7 @@ export default function SettingsPage() {
         }
     }
 
-    const handleUpgrade = async (planName) => {
-        if (!scriptLoaded) {
-            toast({ title: 'Error', description: 'Payment gateway is loading…', variant: 'destructive' })
-            return
-        }
-        setUpgrading(planName)
-        try {
-            const authData = JSON.parse(localStorage.getItem('mlstack-auth') || '{}')
-            const token = authData?.state?.token
-            if (!token) throw new Error('Not authenticated. Please log in again.')
 
-            const orderRes = await fetch(`${API_BASE}/billing/create-order`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plan: planName })
-            })
-            const orderData = await orderRes.json()
-            if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order')
-
-            const isAdvance = planName === 'advance'
-
-            const options = {
-                key: orderData.key_id,
-                amount: orderData.amount,
-                currency: orderData.currency,
-                name: 'MLStack',
-                description: isAdvance ? 'Upgrade to Advance — 1 Year' : 'Upgrade to Pro — 30 days',
-                order_id: orderData.order_id,
-                handler: async (response) => {
-                    try {
-                        const verifyRes = await fetch(`${API_BASE}/billing/verify-payment`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                            body: JSON.stringify({
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_signature: response.razorpay_signature
-                            })
-                        })
-                        const verifyData = await verifyRes.json()
-                        if (verifyRes.ok) {
-                            toast({ title: '🎉 Success!', description: `You have been upgraded to ${isAdvance ? 'Advance' : 'Pro'}!` })
-                            checkAuth()
-                            fetchHistory(1)
-                        } else throw new Error(verifyData.error || 'Payment verification failed')
-                    } catch (err) {
-                        toast({ title: 'Verification Failed', description: err.message, variant: 'destructive' })
-                    }
-                },
-                prefill: { name: user?.username || '', email: user?.email || '' },
-                theme: { color: isAdvance ? '#8b5cf6' : '#10b981' },
-                modal: {
-                    ondismiss: function () {
-                        setUpgrading(false)
-                    }
-                }
-            }
-            const rzp = new window.Razorpay(options)
-            rzp.on('payment.failed', (r) => toast({ title: 'Payment Failed', description: r.error.description, variant: 'destructive' }))
-            rzp.open()
-        } catch (err) {
-            toast({ title: 'Error', description: err.message, variant: 'destructive' })
-        } finally {
-            setUpgrading(false)
-        }
-    }
-
-    const handleDownloadInvoice = async (paymentId) => {
-        try {
-            const authData = JSON.parse(localStorage.getItem('mlstack-auth') || '{}')
-            const token = authData?.state?.token
-            
-            const response = await fetch(`${API_BASE}/billing/invoice/${paymentId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-            
-            if (!response.ok) throw new Error('Failed to download invoice')
-            
-            const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `Invoice_${paymentId}.pdf`
-            document.body.appendChild(a)
-            a.click()
-            window.URL.revokeObjectURL(url)
-            document.body.removeChild(a)
-        } catch (err) {
-            toast({ title: 'Download Failed', description: err.message, variant: 'destructive' })
-        }
-    }
 
     const handleSaveUsername = async () => {
         const trimmed = newUsername.trim()
@@ -322,9 +170,9 @@ export default function SettingsPage() {
 
     const handleLogout = () => { logout(); navigate('/login') }
 
-    const isFree = !user?.plan_type || user.plan_type === 'free'
-    const isPro  = user?.plan_type === 'pro'
-    const isAdvance = user?.plan_type === 'advance'
+
+    const trainingCount = user?.training_count || 0
+    const trainingsRemaining = user?.trainings_remaining ?? (5 - trainingCount)
 
     /* ─────────── Profile Tab ─────────── */
     const renderProfile = () => (
@@ -387,11 +235,17 @@ export default function SettingsPage() {
                         <div className="st-field-value">{user?.email || '—'}</div>
                     </div>
                     <div className="st-field">
-                        <label><Crown size={14} /> Plan</label>
+                        <label><Sparkles size={14} /> Usage</label>
                         <div className="st-field-value">
-                            <span className={`st-plan-tag ${isAdvance ? 'st-tag-advance' : isPro ? 'st-tag-pro' : ''}`}>
-                                {isAdvance ? '⭐ Advance' : isPro ? '⚡ Pro' : 'Free'}
-                            </span>
+                            {user?.is_whitelisted ? (
+                                <span className="st-plan-tag st-tag-pro">
+                                    ✨ Unlimited Access
+                                </span>
+                            ) : (
+                                <span className={`st-plan-tag ${trainingsRemaining === 0 ? 'st-tag-warn' : 'st-tag-pro'}`}>
+                                    {trainingCount}/5 trainings used
+                                </span>
+                            )}
                         </div>
                     </div>
                     <div className="st-field">
@@ -493,123 +347,7 @@ export default function SettingsPage() {
         </div>
     )
 
-    /* ─────────── Billing Tab ─────────── */
-    const renderBilling = () => (
-        <div className="st-section">
-            <h2 className="st-section-title">Billing & Plan</h2>
-            <p className="st-section-desc">
-                You are on the <strong>{isAdvance ? 'Advance' : isPro ? 'Pro' : 'Free'}</strong> plan.
-                {isFree && ' Upgrade to unlock all algorithms and unlimited training.'}
-            </p>
 
-            <div className="st-plan-summary">
-                {isFree && (
-                    <div className="st-summary-card">
-                        <h3>Free Plan</h3>
-                        <p>You are using the free tier.</p>
-                        <button className="st-btn st-btn-primary" onClick={() => navigate('/pricing')}>View Plans & Upgrade</button>
-                    </div>
-                )}
-                {isPro && (
-                    <div className="st-summary-card st-summary-pro">
-                        <h3>Pro Plan</h3>
-                        <p>Active — {billingConfig ? (billingConfig.pro_plan_amount / 100) : '499'} / mo. Renews in {user?.plan_expires_at ? new Date(user.plan_expires_at).toLocaleDateString() : '—'}</p>
-                        <button className="st-btn st-btn-upgrade" onClick={() => handleUpgrade('pro')} disabled={upgrading === 'pro' || !scriptLoaded}>
-                            {upgrading === 'pro' ? <><span className="st-spinner"/> Processing...</> : 'Renew Pro Subscription'}
-                        </button>
-                        <button className="st-btn st-btn-advance-secondary" onClick={() => navigate('/pricing')}>Upgrade to Advance</button>
-                    </div>
-                )}
-                {isAdvance && (
-                    <div className="st-summary-card st-summary-advance">
-                        <h3>Advance Plan</h3>
-                        <p>Active — {billingConfig ? (billingConfig.advance_plan_amount / 100) : '4999'} / yr. Renews in {user?.plan_expires_at ? new Date(user.plan_expires_at).toLocaleDateString() : '—'}</p>
-                        <button className="st-btn st-btn-advance" onClick={() => handleUpgrade('advance')} disabled={upgrading === 'advance' || !scriptLoaded}>
-                            {upgrading === 'advance' ? <><span className="st-spinner"/> Processing...</> : 'Renew Advance Subscription'}
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            {/* Payment History Section */}
-            <div className="st-history-section">
-                <div className="st-history-header">
-                    <h3><History size={18} /> Payment History</h3>
-                    <div className="st-history-stats">
-                        <div className="st-stat">
-                            <label>Total Spent</label>
-                            <span>{billingSummary?.total_spent_display || '₹0.00'}</span>
-                        </div>
-                        <div className="st-stat">
-                            <label>Successful</label>
-                            <span>{billingSummary?.successful_payments || 0}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="st-history-table-wrap">
-                    <table className="st-history-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Order ID</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Invoice</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {historyLoading && history.length === 0 ? (
-                                <tr><td colSpan="5" className="st-table-loading">Loading history…</td></tr>
-                            ) : history.length === 0 ? (
-                                <tr><td colSpan="5" className="st-table-empty">No transactions yet.</td></tr>
-                            ) : history.map(item => (
-                                <tr key={item.id}>
-                                    <td>{new Date(item.created_at).toLocaleDateString()}</td>
-                                    <td className="st-td-id">{item.razorpay_order_id}</td>
-                                    <td>₹{(item.amount / 100).toFixed(2)}</td>
-                                    <td>
-                                        <span className={`st-status-tag st-status-${item.status}`}>
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {item.status === 'captured' ? (
-                                            <button 
-                                                className="st-btn-icon" 
-                                                onClick={() => handleDownloadInvoice(item.id)}
-                                                title="Download Invoice"
-                                            >
-                                                <Download size={16} />
-                                            </button>
-                                        ) : '—'}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {historyTotalPages > 1 && (
-                    <div className="st-pagination">
-                        <button 
-                            disabled={historyPage === 1 || historyLoading}
-                            onClick={() => fetchHistory(historyPage - 1)}
-                        >
-                            Previous
-                        </button>
-                        <span>Page {historyPage} of {historyTotalPages}</span>
-                        <button 
-                            disabled={historyPage === historyTotalPages || historyLoading}
-                            onClick={() => fetchHistory(historyPage + 1)}
-                        >
-                            Next
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    )
 
     /* ─────────── Notifications Tab ─────────── */
     const renderNotifications = () => (
@@ -647,7 +385,7 @@ export default function SettingsPage() {
 
             <header className="st-page-header">
                 <h1 className="st-page-title">Settings</h1>
-                <p className="st-page-sub">Manage your account, security, and subscription.</p>
+                <p className="st-page-sub">Manage your account and security.</p>
             </header>
 
             <div className="st-layout">
@@ -671,7 +409,7 @@ export default function SettingsPage() {
                     {activeTab === 'profile'       && renderProfile()}
                     {activeTab === 'security'      && renderSecurity()}
                     {activeTab === 'notifications' && renderNotifications()}
-                    {activeTab === 'billing'       && renderBilling()}
+
                 </div>
             </div>
         </div>

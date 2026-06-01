@@ -112,36 +112,3 @@ def notify_security_alert(user, event_type, details=''):
         print(f"[notify] security_alert email failed for user {user.id}: {e}")
 
 
-def notify_subscription_expired(user, expiry_date):
-    """Send email when Pro subscription expires."""
-    if not _should_notify(user.id, 'billing_updates'):
-        return
-    try:
-        mailer_service.send_template_email(
-            'subscription_expired',
-            user.email,
-            {
-                'username': user.username,
-                'expiry_date': expiry_date,
-            }
-        )
-    except MailerError as e:
-        print(f"[notify] subscription_expired email failed for user {user.id}: {e}")
-
-
-def notify_subscription_renewed(user, new_expiry_date, plan_name='pro'):
-    """Send email when Pro subscription is successfully renewed/extended."""
-    if not _should_notify(user.id, 'billing_updates'):
-        return
-    try:
-        mailer_service.send_template_email(
-            'subscription_renewed',
-            user.email,
-            {
-                'username': user.username,
-                'new_expiry_date': new_expiry_date,
-                'plan_name': plan_name,
-            }
-        )
-    except MailerError as e:
-        print(f"[notify] subscription_renewed email failed for user {user.id}: {e}")

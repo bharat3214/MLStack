@@ -28,20 +28,10 @@ def _get_real_ip():
     return get_remote_address()
 
 
+
 def get_user_rate_limit():
-    try:
-        from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
-        from .models.user import User
-        # Check if a valid JWT is present without enforcing it
-        verify_jwt_in_request(optional=True)
-        user_id = get_jwt_identity()
-        if user_id is not None:
-            user = User.query.get(int(user_id))
-            if user and user.plan_type in ('pro', 'advance'):
-                return "200 per minute"
-    except Exception:
-        pass
-    return "20 per minute"
+    """Single flat rate limit for all users — DDoS protection only."""
+    return "60 per minute"
 
 limiter = Limiter(
     key_func=_get_real_ip,
@@ -58,44 +48,13 @@ def header_whitelist():
     return bool(internal_key) and flask_request.headers.get("X-Internal-Service") == internal_key
 
 
-def _sync_billing_schema():
-    """Backfill billing columns for existing installs without full migrations."""
+
+def _sync_usage_schema():
+    """Backfill training_count column for existing installs."""
     if db.engine.dialect.name != 'postgresql':
         return
-
-    statements = [
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_type VARCHAR(20) NOT NULL DEFAULT 'free'",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_expires_at TIMESTAMP",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS razorpay_customer_id VARCHAR(100)",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS razorpay_subscription_id VARCHAR(100)",
-    ]
-    for statement in statements:
-        db.session.execute(text(statement))
-
-    # Create the payments table if it doesn't exist
-    db.session.execute(text("""
-        CREATE TABLE IF NOT EXISTS payments (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL REFERENCES users(id),
-            razorpay_order_id VARCHAR(100) NOT NULL,
-            razorpay_payment_id VARCHAR(100) UNIQUE,
-            razorpay_signature VARCHAR(256),
-            amount INTEGER NOT NULL,
-            currency VARCHAR(10) DEFAULT 'INR',
-            status VARCHAR(30) NOT NULL DEFAULT 'created',
-            provider VARCHAR(30) DEFAULT 'razorpay',
-            source VARCHAR(20) DEFAULT 'client',
-            plan_granted VARCHAR(20),
-            notes TEXT,
-            created_at TIMESTAMP DEFAULT NOW(),
-            updated_at TIMESTAMP DEFAULT NOW()
-        )
-    """))
     db.session.execute(text(
-        "CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id)"
-    ))
-    db.session.execute(text(
-        "CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(razorpay_order_id)"
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS training_count INTEGER NOT NULL DEFAULT 0"
     ))
     db.session.commit()
 
@@ -166,7 +125,6 @@ def _register_rate_limit_error_handler(app):
         return jsonify({
             'error': 'Rate limit exceeded',
             'message': str(e.description),
-            'upgrade_url': '/pricing',
         }), 429
 
 
@@ -196,11 +154,9 @@ def create_app(config_class=Config):
     from .routes.predictions import predictions_bp
     from .routes.models import models_bp
     from .routes.system import system_bp
-    from .routes.billing import billing_bp
     from .routes.notifications import notifications_bp
     from .routes.oauth import oauth_bp, init_oauth
     from .models.notification_preference import NotificationPreference  # ensure table creation
-    from .models.payment import Payment  # ensure payments table creation
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(oauth_bp, url_prefix='/api/auth')
@@ -209,7 +165,6 @@ def create_app(config_class=Config):
     app.register_blueprint(predictions_bp, url_prefix='/api/predict')
     app.register_blueprint(models_bp, url_prefix='/api/models')
     app.register_blueprint(system_bp, url_prefix='/api/system')
-    app.register_blueprint(billing_bp, url_prefix='/api/billing')
     app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
     init_oauth(app)
     
@@ -223,6 +178,6 @@ def create_app(config_class=Config):
         db.create_all()
         _sync_auth_schema()
         _sync_oauth_schema()
-        _sync_billing_schema()
+        _sync_usage_schema()
     
     return app

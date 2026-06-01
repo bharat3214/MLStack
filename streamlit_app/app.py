@@ -176,12 +176,12 @@ def load_model_package(model_id: int):
 
 
 @st.cache_resource
-def load_cached_model(_model_id_str: str):
+def load_cached_model(model_id_str: str):
     """
     Download, extract, and load model components — cached by model_id.
     Uses @st.cache_resource so the model stays in memory across re-runs.
     """
-    model_id = int(_model_id_str)
+    model_id = int(model_id_str)
     temp_dir_obj, temp_dir, error = load_model_package(model_id)
     if error:
         return None, None, None, None, None, None, error

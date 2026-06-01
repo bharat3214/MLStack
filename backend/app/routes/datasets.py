@@ -432,11 +432,6 @@ def upload_dataset():
     
     if not user:
         return jsonify({'error': 'User not found'}), 404
-        
-    if user.plan_type == 'free':
-        dataset_count = Dataset.query.filter_by(user_id=user_id).count()
-        if dataset_count >= 3:
-            return jsonify({'error': 'Free plan limit reached (3 datasets max). Upgrade to Pro for unlimited datasets.'}), 403
     
     
     if 'file' not in request.files:
@@ -1036,10 +1031,6 @@ def kaggle_search():
     except Exception as e:
         return jsonify({'error': f'Kaggle API error: {str(e)}'}), 502
 
-    is_limited = False
-    if user and user.plan_type == 'free':
-        datasets = datasets[:5]
-        is_limited = True
 
     results = []
     for ds in datasets:
@@ -1067,7 +1058,7 @@ def kaggle_search():
 
     return jsonify({
         'query': query,
-        'is_limited': is_limited,
+        'is_limited': False,
         'results': results
     }), 200
 
@@ -1420,8 +1411,7 @@ def generate_synthetic():
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    if user.plan_type == 'free':
-        return jsonify({'error': 'Synthetic data generation is locked on the Free tier. Please upgrade.'}), 403
+
 
     data = request.get_json()
 
