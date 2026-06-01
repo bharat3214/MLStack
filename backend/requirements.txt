@@ -1,5 +1,5 @@
 # ======================
-# InferX-ML Backend Dependencies
+# MLStack Backend Dependencies
 # ======================
 
 # PyTorch CUDA 11.8 index for GPU support

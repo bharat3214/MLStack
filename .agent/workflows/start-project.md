@@ -1,8 +1,8 @@
 ---
-description: How to start the InferX-ML project (frontend and backend)
+# description: How to start the MLStack project (frontend and backend)
 ---
 
-# Starting InferX-ML Project
+# Starting MLStack Project
 
 ## Prerequisites
 - Docker Desktop must be running
@@ -11,7 +11,7 @@ description: How to start the InferX-ML project (frontend and backend)
 
 1. Open terminal and navigate to the project folder:
 ```powershell
-cd c:\Users\om\OneDrive\Attachments\Desktop\InferX_ML\InferX-ML
+cd c:\Users\om\OneDrive\Attachments\Desktop\InferX_ML\MLStack
 ```
 
 // turbo
@@ -88,14 +88,14 @@ docker-compose restart backend
 If you get "Registration failed" or database errors on first run:
 
 ```powershell
-docker exec inferx-backend python -c "from app import create_app, db; app = create_app(); app.app_context().push(); db.create_all(); print('Database tables created!')"
+docker exec mlstack-backend python -c "from app import create_app, db; app = create_app(); app.app_context().push(); db.create_all(); print('Database tables created!')"
 ```
 
 ---
 
 ## Environment Variables (Optional)
 
-Create a `.env` file in the InferX-ML folder for API keys:
+Create a `.env` file in the MLStack folder for API keys:
 ```
 GEMINI_API_KEY=your_key_here
 GROQ_API_KEY=your_key_here

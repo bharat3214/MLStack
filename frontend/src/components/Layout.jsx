@@ -48,7 +48,7 @@ export default function Layout({ children }) {
                 <div className="sidebar-header">
                     <div className="logo">
                         <Sparkles className="logo-icon" />
-                        {!collapsed && <span className="logo-text">InferX-ML</span>}
+                        {!collapsed && <span className="logo-text">MLStack</span>}
                     </div>
                     <button
                         className="collapse-btn"
@@ -91,6 +91,16 @@ export default function Layout({ children }) {
                     </button>
                 </div>
             </aside>
+
+            {collapsed && (
+                <button
+                    className="sidebar-reopen"
+                    onClick={() => setCollapsed(false)}
+                    aria-label="Open sidebar"
+                >
+                    <ChevronRight size={18} />
+                </button>
+            )}
 
             {/* Main Content */}
             <main className={`main-content ${getPageClass()}`}>

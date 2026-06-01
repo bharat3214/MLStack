@@ -1,5 +1,5 @@
 """
-InferX-ML Backend Application Factory
+MLStack Backend Application Factory
 """
 import os
 from flask import Flask, request as flask_request, jsonify
@@ -217,7 +217,7 @@ def create_app(config_class=Config):
     @app.route('/api/health')
     @limiter.exempt
     def health_check():
-        return {'status': 'healthy', 'service': 'InferX-ML API'}
+        return {'status': 'healthy', 'service': 'MLStack API'}
 
     with app.app_context():
         db.create_all()

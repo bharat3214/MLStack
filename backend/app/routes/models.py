@@ -284,7 +284,7 @@ def internal_download_model(model_id):
     
     # Only allow internal access (from within Docker network)
     # Check for internal secret or allow any Docker internal request
-    internal_secret = os.environ.get('INTERNAL_API_SECRET', 'inferx-internal-2024')
+    internal_secret = os.environ.get('INTERNAL_API_SECRET', 'mlstack-internal-2024')
     provided_secret = request.headers.get('X-Internal-Secret', '')
     
     # Allow if correct secret or if coming from Docker network (streamlit container)
@@ -338,7 +338,7 @@ def internal_list_models():
     import os
     
     # Same internal access check
-    internal_secret = os.environ.get('INTERNAL_API_SECRET', 'inferx-internal-2024')
+    internal_secret = os.environ.get('INTERNAL_API_SECRET', 'mlstack-internal-2024')
     provided_secret = request.headers.get('X-Internal-Secret', '')
     remote_addr = request.remote_addr
     is_internal = remote_addr.startswith('172.') or remote_addr == '127.0.0.1' or provided_secret == internal_secret

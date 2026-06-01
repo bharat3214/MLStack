@@ -34,13 +34,13 @@ export default function DatasetViewer() {
     const [showStats, setShowStats] = useState(false)
 
     useEffect(() => {
-        document.title = 'Dataset Viewer — InferX-ML'
+    document.title = 'Dataset Viewer — MLStack'
         const fetchData = async () => {
             try {
                 setLoading(true)
                 const res = await datasetsApi.preview(datasetId)
                 setData(res.data)
-                document.title = `${res.data.name} — InferX-ML`
+                document.title = `${res.data.name} — MLStack`
             } catch (err) {
                 setError(err?.response?.data?.error || 'Failed to load dataset')
             } finally {

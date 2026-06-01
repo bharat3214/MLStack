@@ -1,5 +1,5 @@
 """
-Configuration settings for InferX-ML Backend
+Configuration settings for MLStack Backend
 """
 import os
 from datetime import timedelta
@@ -18,7 +18,7 @@ class Config:
     # Database
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'postgresql://postgres:postgres@localhost:5432/inferx_ml'
+    'postgresql://postgres:postgres@localhost:5432/mlstack_db'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     

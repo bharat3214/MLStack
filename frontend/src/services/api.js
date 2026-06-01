@@ -12,7 +12,7 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         // Get token from localStorage (persisted by zustand)
-        const authData = localStorage.getItem('inferx-auth')
+    const authData = localStorage.getItem('mlstack-auth')
         if (authData) {
             try {
                 const parsed = JSON.parse(authData)
@@ -38,7 +38,7 @@ api.interceptors.response.use(
         // Handle 401 - Unauthorized
         if (error.response?.status === 401) {
             // Clear auth and redirect to login
-            localStorage.removeItem('inferx-auth')
+            localStorage.removeItem('mlstack-auth')
             window.location.href = '/login'
         }
         return Promise.reject(error)

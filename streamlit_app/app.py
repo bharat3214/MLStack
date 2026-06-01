@@ -1,6 +1,6 @@
 
 """
-InferX-ML Streamlit Application
+MLStack Streamlit Application
 Dynamic model loading and prediction UI
 Version: 1.1 (Dynamic Execution)
 """
@@ -76,7 +76,7 @@ _sys.modules.setdefault('app.routes.training', _fake_training)
 
 # Page configuration
 st.set_page_config(
-    page_title="InferX-ML Predictions",
+    page_title="MLStack Predictions",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -84,7 +84,7 @@ st.set_page_config(
 
 # API URL - internal Docker network
 API_URL = os.environ.get('API_URL', 'http://backend:5000/api')
-INTERNAL_SECRET = os.environ.get('INTERNAL_API_SECRET', 'inferx-internal-2024')
+INTERNAL_SECRET = os.environ.get('INTERNAL_API_SECRET', 'mlstack-internal-2024')
 
 # Custom CSS
 st.markdown("""

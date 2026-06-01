@@ -1,12 +1,12 @@
-# InferX ML
+# MLStack
 
 ## Overview
 
-**InferX ML** is a no-code machine learning platform designed to simplify the end-to-end ML workflow for **structured, time-series, and image data**. The platform enables users to upload datasets, automatically train predictive models, and generate insights and predictions **without writing any machine learning code**.
+**MLStack** is a no-code machine learning platform designed to simplify the end-to-end ML workflow for **structured, time-series, and image data**. The platform enables users to upload datasets, automatically train predictive models, and generate insights and predictions **without writing any machine learning code**.
 
-InferX ML follows a **rule-based AutoML approach**, where the system automatically performs data profiling, preprocessing, model selection, training, evaluation, and explainability. Instead of deploying models as external services, predictions are executed internally and displayed directly through an interactive user interface, keeping the system **simple, efficient, and easy to use**.
+MLStack follows a **rule-based AutoML approach**, where the system automatically performs data profiling, preprocessing, model selection, training, evaluation, and explainability. Instead of deploying models as external services, predictions are executed internally and displayed directly through an interactive user interface, keeping the system **simple, efficient, and easy to use**.
 
-The platform is built entirely on **open-source technologies**, including **Streamlit** for the no-code interface, **Pandas and scikit-learn** for data processing and model training, and **MinIO** for scalable object storage of datasets, models, and artifacts. InferX ML is optimized for **educational use, rapid prototyping, and small-to-medium scale analytics**, while being architecturally ready to scale to distributed systems in future iterations.
+The platform is built entirely on **open-source technologies**, including **Streamlit** for the no-code interface, **Pandas and scikit-learn** for data processing and model training, and **MinIO** for scalable object storage of datasets, models, and artifacts. MLStack is optimized for **educational use, rapid prototyping, and small-to-medium scale analytics**, while being architecturally ready to scale to distributed systems in future iterations.
 
 ---
 
@@ -29,11 +29,10 @@ The platform is built entirely on **open-source technologies**, including **Stre
 ```
 ┌────────────────────────────────────────────┐
 │              User Browser                  │
-└───────────────┬───────────────┬────────────┘
+MLStack follows a **rule-based AutoML approach**, where the system automatically performs data profiling, preprocessing, model selection, training, evaluation, and explainability. Instead of deploying models as external services, predictions are executed internally and displayed directly through an interactive user interface, keeping the system **simple, efficient, and easy to use**.
                 │               │
                 ▼               ▼
 ┌────────────────────────┐  ┌────────────────────────┐
-│     React Frontend     │  │    Streamlit Frontend  │
 │   (Main Application)   │  │   (Prediction & ML UI) │
 │                        │  │                        │
 │ • Login / Dashboard    │  │ • Training progress    │
@@ -45,7 +44,6 @@ The platform is built entirely on **open-source technologies**, including **Stre
 ┌────────────────────────────────────────────┐
 │              Flask Backend                 │
 │          (Core Orchestrator API)           │
-│                                            │
 │ • Auth & user management                   │
 │ • Dataset registration                     │
 │ • AutoML workflow control                  │
@@ -65,18 +63,12 @@ The platform is built entirely on **open-source technologies**, including **Stre
                              └────────────────────────┘
 ```
 
----
 
 # 🔄 Flow Summary
 
 ```
 React UI
    ↓
-Flask API
-   ↓
-MinIO (store data)
-   ↓
-Pandas AutoML
    ↓
 Model + Artifacts → MinIO
    ↓
@@ -94,7 +86,6 @@ Predictions in Browser
 - **Python 3.10+**
 - **Node.js 18+**
 - **Docker & Docker Compose** (for database and storage)
-- **Git**
 
 ---
 
@@ -103,8 +94,8 @@ Predictions in Browser
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/bharat3214/InferX-ML.git
-cd InferX-ML
+git clone https://github.com/bharat3214/MLStack.git
+cd MLStack
 ```
 
 ### 2. Set Up Environment Variables
@@ -121,33 +112,23 @@ cp .env.example .env
 ### Start Services
 
 Choose the command based on your hardware:
-
 **Option A: CPU Only (Standard)**
 ```bash
 docker-compose up --build
 ```
-
-**Option B: GPU Enabled (Requires NVIDIA GPU & Container Toolkit)**
-```bash
 docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
 ```
-
-#### Advanced: Manual Builds
-
 You can also build individual images with custom arguments:
 
 ```bash
 # Build backend for GPU manually
-docker build -t inferx-backend-gpu \
-  --build-arg BASE_IMAGE=nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
-  -f docker/Dockerfile.backend .
+docker build -t mlstack-backend-gpu \
+   --build-arg BASE_IMAGE=nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
+   -f docker/Dockerfile.backend .
 ```
 
 **Access Points:**
-- 🌐 **Frontend (React)**: http://localhost:3000
-- 🔌 **Backend API**: http://localhost:5000
-- 📊 **Streamlit App**: http://localhost:8501
-- 💾 **MinIO Console**: http://localhost:9001 (admin: minioadmin/minioadmin)
+-  **Streamlit App**: http://localhost:8501
 
 ### Stop Services
 
@@ -157,13 +138,11 @@ docker-compose down
 
 ---
 
-## 🛠️ Running Locally (Development)
 
 ### Step 1: Start Infrastructure Only
 
 ```bash
 docker-compose up -d postgres redis minio
-```
 
 ### Step 2: Backend Setup
 
@@ -246,7 +225,7 @@ pytest --cov=.
 ## 📁 Project Structure
 
 ```
-InferX-ML/
+MLStack/
 ├── backend/                 # Flask API Server
 │   ├── app/
 │   │   ├── models/         # Database models
@@ -286,7 +265,7 @@ InferX-ML/
 After running `python migrations.py seed`:
 
 ```
-Email: demo@inferx.ml
+Email: demo@mlstack.local
 Password: demo123
 ```
 
@@ -297,7 +276,7 @@ Password: demo123
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `FLASK_ENV` | Environment mode | development |
-| `DATABASE_URL` | PostgreSQL connection | postgresql://postgres:postgres@localhost:5432/inferx_ml |
+| `DATABASE_URL` | PostgreSQL connection | postgresql://postgres:postgres@localhost:5432/mlstack_db |
 | `REDIS_URL` | Redis connection | redis://localhost:6379/0 |
 | `MINIO_ENDPOINT` | MinIO server | localhost:9000 |
 | `MINIO_ACCESS_KEY` | MinIO access key | minioadmin |

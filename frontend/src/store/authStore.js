@@ -133,7 +133,7 @@ export const useAuthStore = create(
             }
         }),
         {
-            name: 'inferx-auth',
+            name: 'mlstack-auth',
             partialize: (state) => ({
                 token: state.token,
                 user: state.user

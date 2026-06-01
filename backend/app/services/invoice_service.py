@@ -33,9 +33,9 @@ def generate_invoice_pdf(payment, user):
     GRAY = (160, 160, 170)
     LIGHT_BG = (245, 245, 250)
 
-    company_name = os.getenv('COMPANY_NAME', 'InferX ML')
+    company_name = os.getenv('COMPANY_NAME', 'MLStack')
     company_address = os.getenv('COMPANY_ADDRESS', 'Pune, Maharashtra, India')
-    company_email = os.getenv('COMPANY_EMAIL', 'billing@inferx.dev')
+    company_email = os.getenv('COMPANY_EMAIL', 'billing@mlstack.dev')
     company_gstin = os.getenv('COMPANY_GSTIN', '')
 
     amount_inr = payment.amount / 100  # paise → INR
@@ -132,7 +132,7 @@ def generate_invoice_pdf(payment, user):
     pdf.set_xy(15, row_y)
 
     plan_name = (payment.plan_granted or 'pro').capitalize()
-    description = f"InferX ML {plan_name} Plan - Monthly"
+    description = f"MLStack {plan_name} Plan - Monthly"
 
     pdf.cell(90, 10, f"  {description}", fill=True)
     pdf.cell(30, 10, '1', fill=True, align='C')

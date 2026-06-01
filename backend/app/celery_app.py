@@ -8,7 +8,7 @@ from app.config import Config
 
 # Create Celery app
 celery_app = Celery(
-    'inferx_ml',
+    'mlstack',
     broker=Config.CELERY_BROKER_URL,
     backend=Config.CELERY_RESULT_BACKEND,
     include=['app.tasks.training_tasks', 'app.tasks.billing_tasks']

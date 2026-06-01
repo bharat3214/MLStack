@@ -194,7 +194,7 @@ export default function Login() {
                             <Sparkles size={24} />
                         </div>
                         <div>
-                            <h1>InferX-ML</h1>
+                            <h1>MLStack</h1>
                             <p>Next-Gen No-Code AI Platform</p>
                         </div>
                     </div>

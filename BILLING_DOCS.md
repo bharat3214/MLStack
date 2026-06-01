@@ -1,6 +1,6 @@
-# InferX-ML Billing & Subscription Architecture
+# MLStack Billing & Subscription Architecture
 
-This document outlines the complete end-to-end architecture of the subscription and billing system in InferX-ML. 
+This document outlines the complete end-to-end architecture of the subscription and billing system in MLStack.
 
 ## 1. Plan Structure
 The platform utilizes a dynamic 3-tier subscription model:

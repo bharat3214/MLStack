@@ -1,5 +1,5 @@
 """
-Run the InferX-ML Flask application
+Run the MLStack Flask application
 """
 from app import create_app
 

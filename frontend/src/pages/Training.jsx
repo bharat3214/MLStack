@@ -414,7 +414,7 @@ export default function Training() {
     const handleDownloadLogs = () => {
         if (!currentJob) return;
 
-        let logContent = `INFERX-ML TRAINING LOG\n`;
+    let logContent = `MLStack TRAINING LOG\n`;
         logContent += `======================\n`;
         logContent += `Experiment: ${currentJob.name}\n`;
         logContent += `Status: ${latestTrainingData?.experiment?.status || 'Unknown'}\n`;
@@ -801,8 +801,8 @@ export default function Training() {
                                         <AlertCircle size={16} />
                                         <span>Extreme Imbalance Detected</span>
                                     </div>
-                                    <p style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--text-secondary)' }}>
-                                        Your data is imbalanced. Would you like InferX to generate synthetic 'Fraud' records to balance the training?
+                                        <p style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--text-secondary)' }}>
+                                        Your data is imbalanced. Would you like MLStack to generate synthetic 'Fraud' records to balance the training?
                                     </p>
                                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
                                         <input 

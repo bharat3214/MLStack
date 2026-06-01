@@ -101,7 +101,7 @@ export default function Dashboard() {
                     <span className="hero-badge">
                         <Sparkles size={12} /> ENTERPRISE AUTO-ML WORKSPACE
                     </span>
-                    <h1>InferX-ML Workspace</h1>
+                    <h1>MLStack Workspace</h1>
                     <p className="hero-subtitle">
                         Train state-of-the-art machine learning models serverlessly, explore dataset profiles, 
                         and generate real-time predictive endpoints.

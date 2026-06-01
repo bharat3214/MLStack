@@ -1,5 +1,5 @@
 """
-GPU Utility Module for InferX-ML
+GPU Utility Module for MLStack
 Automatic GPU detection and configuration for TensorFlow, PyTorch, XGBoost, and LightGBM.
 If a GPU is available, it will be used automatically. Otherwise, falls back to CPU.
 """

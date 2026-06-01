@@ -57,7 +57,7 @@ def generate_synthetic_dataset():
     shutil.rmtree(DATASET_DIR)
     
     print(f"\n✅ Created '{OUTPUT_ZIP}' with {len(CLASSES) * NUM_IMAGES_PER_CLASS} images.")
-    print("👉 Upload this file to InferX-ML to test image classification.")
+    print("👉 Upload this file to MLStack to test image classification.")
 
 if __name__ == "__main__":
     generate_synthetic_dataset()

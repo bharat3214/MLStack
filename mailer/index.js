@@ -5,8 +5,8 @@ const app = express()
 app.use(express.json())
 
 const port = Number(process.env.MAILER_PORT || 4000)
-const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'no-reply@inferx.local'
-const productName = process.env.MAILER_PRODUCT_NAME || 'InferX-ML'
+const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'no-reply@mlstack.local'
+const productName = process.env.MAILER_PRODUCT_NAME || 'MLStack'
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -176,7 +176,7 @@ function renderTemplate(type, payload = {}) {
 }
 
 app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', service: 'inferx-mailer' })
+    res.json({ status: 'ok', service: 'mlstack-mailer' })
 })
 
 app.post('/send', async (req, res) => {
@@ -201,5 +201,5 @@ app.post('/send', async (req, res) => {
 })
 
 app.listen(port, '0.0.0.0', () => {
-    console.log(`InferX mailer listening on ${port}`)
+    console.log(`MLStack mailer listening on ${port}`)
 })

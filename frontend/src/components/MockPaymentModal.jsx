@@ -39,7 +39,7 @@ const MockPaymentModal = ({ open, onClose, onSuccess, amount, currency, user }) 
                                 <span className="mock-pay-currency">{currency === 'INR' ? '₹' : '$'}</span>
                                 <span className="mock-pay-value">{(amount / 100).toFixed(0)}</span>
                             </div>
-                            <p className="mock-pay-desc">InferX-ML Pro — 30 days</p>
+                            <p className="mock-pay-desc">MLStack Pro — 30 days</p>
                             <div className="mock-pay-details">
                                 <div className="mock-pay-row">
                                     <span>Account</span>

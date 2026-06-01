@@ -76,6 +76,31 @@
     display: none;
 }
 
+.sidebar-reopen {
+    position: fixed;
+    left: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(17, 17, 17, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    color: var(--color-gray-300);
+    cursor: pointer;
+    z-index: 45;
+    transition: all 0.2s ease;
+}
+
+.sidebar-reopen:hover {
+    background: rgba(31, 41, 55, 0.95);
+    color: var(--color-gray-100);
+}
+
 /* Navigation */
 .sidebar-nav {
     flex: 1;
@@ -224,6 +249,11 @@
 @media (max-width: 980px) {
     .sidebar {
         width: 76px;
+    }
+
+    .sidebar-reopen {
+        left: 76px;
+        height: 56px;
     }
 
     .sidebar .logo-text,

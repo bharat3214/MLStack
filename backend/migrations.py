@@ -47,14 +47,14 @@ def seed_db():
     
     with app.app_context():
         # Check if user already exists
-        existing_user = User.query.filter_by(email='demo@inferx.ml').first()
+        existing_user = User.query.filter_by(email='demo@mlstack.local').first()
         if existing_user:
             print("Demo user already exists. Skipping seed.")
             return
         
         # Create demo user
         demo_user = User(
-            email='demo@inferx.ml',
+            email='demo@mlstack.local',
             username='demo'
         )
         demo_user.set_password('demo123')
@@ -77,7 +77,7 @@ def seed_db():
         db.session.commit()
         
         print("✅ Database seeded with sample data!")
-        print("   Demo user: demo@inferx.ml / demo123")
+        print("   Demo user: demo@mlstack.local / demo123")
 
 
 def reset_db():

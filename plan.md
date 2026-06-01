@@ -1,4 +1,4 @@
-# 📋 InferX-ML: Complete Project Plan
+# 📋 MLStack: Complete Project Plan
 
 > **No-Code AI/ML Platform** - Build predictive, forecasting, and computer vision models without writing code.
 
@@ -6,7 +6,7 @@
 
 ## 🎯 Project Overview
 
-InferX-ML is a **no-code machine learning platform** that enables users to:
+MLStack is a **no-code machine learning platform** that enables users to:
 - Upload datasets (CSV, Excel, Images)
 - Define goals in natural language
 - Automatically train and evaluate ML models
@@ -210,7 +210,7 @@ This schema enables **automatic UI generation** for predictions without any fron
 ## 🗂️ Project Directory Structure
 
 ```
-InferX-ML/
+MLStack/
 │
 ├── 📁 frontend/                      # React Frontend
 │   ├── public/

@@ -1,4 +1,4 @@
-# InferX-ML Data Preprocessing Guide
+# MLStack Data Preprocessing Guide
 
 This document outlines the advanced, industrial best practices currently implemented across the `ml_engine/preprocessing` pipelines. The preprocessing engine is split into three core modules: Tabular, Image, and Time-Series data.
 

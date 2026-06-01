@@ -232,8 +232,8 @@ export default function LandingPage() {
             <nav className={`landing-nav ${scrolled ? 'nav-scrolled' : ''}`}>
                 <div className="nav-inner">
                     <div className="nav-brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <img src="/logo.png" alt="InferX-ML" className="brand-logo" />
-                        <span className="brand-text">InferX-ML</span>
+                        <img src="/logo.png" alt="MLStack" className="brand-logo" />
+                        <span className="brand-text">MLStack</span>
                     </div>
 
                     <div className="nav-links">
@@ -315,7 +315,7 @@ export default function LandingPage() {
                             <span className="hero-title-accent">in Minutes.</span>
                         </h1>
                         <p className="hero-subtitle">
-                            Drop your CSV. Pick a target. InferX handles the rest — feature engineering,
+                            Drop your CSV. Pick a target. MLStack handles the rest — feature engineering,
                             model selection, hyperparameter tuning, and explainability.
                             <strong> Zero code. Full control.</strong>
                         </p>
@@ -371,7 +371,7 @@ export default function LandingPage() {
                                     <span className="dot dot-yellow" />
                                     <span className="dot dot-green" />
                                 </div>
-                                <span className="mock-title">InferX-ML — Training</span>
+                                <span className="mock-title">MLStack — Training</span>
                             </div>
                             <div className="mock-body">
                                 <div className="mock-sidebar">
@@ -605,7 +605,7 @@ export default function LandingPage() {
                         <span>The Team</span>
                     </div>
                     <h2 className="section-title">Developed By</h2>
-                    <p className="section-subtitle">The minds behind InferX-ML.</p>
+                    <p className="section-subtitle">The minds behind MLStack.</p>
                 </FadeIn>
 
                 <FadeIn delay={0.2}>
@@ -620,8 +620,8 @@ export default function LandingPage() {
                     {/* Brand Column */}
                     <div className="footer-col brand-col">
                         <div className="footer-brand">
-                            <img src="/logo.png" alt="InferX-ML" className="brand-logo footer-logo" />
-                            <span>InferX-ML</span>
+                            <img src="/logo.png" alt="MLStack" className="brand-logo footer-logo" />
+                            <span>MLStack</span>
                         </div>
                         <p className="footer-tagline">
                             Empowering developers and businesses to build, train, and deploy AI models without writing code.
@@ -662,7 +662,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="footer-bottom">
-                    <span className="footer-copy">© 2026 InferX-ML. All rights reserved.</span>
+                    <span className="footer-copy">© 2026 MLStack. All rights reserved.</span>
                     <div className="footer-status">
                         <div className="status-dot"></div>
                         <span>All Systems Operational</span>

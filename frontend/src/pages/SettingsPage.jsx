@@ -210,7 +210,7 @@ export default function SettingsPage() {
         }
         setUpgrading(planName)
         try {
-            const authData = JSON.parse(localStorage.getItem('inferx-auth') || '{}')
+            const authData = JSON.parse(localStorage.getItem('mlstack-auth') || '{}')
             const token = authData?.state?.token
             if (!token) throw new Error('Not authenticated. Please log in again.')
 
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                 key: orderData.key_id,
                 amount: orderData.amount,
                 currency: orderData.currency,
-                name: 'InferX-ML',
+                name: 'MLStack',
                 description: isAdvance ? 'Upgrade to Advance — 1 Year' : 'Upgrade to Pro — 30 days',
                 order_id: orderData.order_id,
                 handler: async (response) => {
@@ -272,7 +272,7 @@ export default function SettingsPage() {
 
     const handleDownloadInvoice = async (paymentId) => {
         try {
-            const authData = JSON.parse(localStorage.getItem('inferx-auth') || '{}')
+            const authData = JSON.parse(localStorage.getItem('mlstack-auth') || '{}')
             const token = authData?.state?.token
             
             const response = await fetch(`${API_BASE}/billing/invoice/${paymentId}`, {

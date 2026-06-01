@@ -465,7 +465,7 @@ def download_invoice(payment_id):
         pdf_bytes = generate_invoice_pdf(payment, user)
 
         from flask import Response
-        invoice_filename = f"InferX_Invoice_{payment.id:06d}.pdf"
+        invoice_filename = f"MLStack_Invoice_{payment.id:06d}.pdf"
         return Response(
             pdf_bytes,
             mimetype='application/pdf',

@@ -53,7 +53,7 @@ export const useTrainingStore = create(
             }),
         }),
         {
-            name: 'inferx-training',
+            name: 'mlstack-training',
             partialize: (state) => ({
                 currentJob: state.currentJob,
                 isTraining: state.isTraining,
