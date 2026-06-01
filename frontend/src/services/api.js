@@ -64,7 +64,7 @@ export const datasetsApi = {
     searchKaggle: (query, page = 1) => api.get('/datasets/kaggle/search', { params: { query, page } }),
     downloadKaggle: (ref, name) => api.post('/datasets/kaggle/download', { ref, name }, { timeout: 120000 }),
     generateSynthetic: (config) => api.post('/datasets/generate-synthetic', config, { timeout: 60000 }),
-    aiSchema: (prompt) => api.post('/datasets/ai/schema', { prompt }, { timeout: 30000 }),
+    aiSchema: (prompt, userApiKey) => api.post('/datasets/ai/schema', { prompt, user_api_key: userApiKey || '' }, { timeout: 120000 }),
     aiGenerate: (config) => api.post('/datasets/ai/generate', config, { timeout: 120000 }),
     preview: (id) => api.get(`/datasets/${id}/preview`),
 }

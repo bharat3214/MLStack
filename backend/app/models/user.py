@@ -8,14 +8,26 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 
 
-# Path to the whitelist JSON file (lives next to models/)
-_WHITELIST_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'whitelist.json')
+# Path to whitelist JSON files (live next to models/)
+_APP_DIR = os.path.dirname(os.path.dirname(__file__))
+_WHITELIST_PATH = os.path.join(_APP_DIR, 'whitelist.json')
+_SYNTHETIC_WHITELIST_PATH = os.path.join(_APP_DIR, 'synthetic_whitelist.json')
 
 
 def _load_whitelist():
-    """Read the whitelist file each time so edits take effect without restart."""
+    """Read the training whitelist file."""
+    return _load_json_emails(_WHITELIST_PATH)
+
+
+def _load_synthetic_whitelist():
+    """Read the synthetic data whitelist file."""
+    return _load_json_emails(_SYNTHETIC_WHITELIST_PATH)
+
+
+def _load_json_emails(path):
+    """Read emails from a JSON whitelist file. File is read fresh each call."""
     try:
-        with open(_WHITELIST_PATH, 'r') as f:
+        with open(path, 'r') as f:
             data = json.load(f)
         return [e.strip().lower() for e in data.get('unlimited_access', [])]
     except (FileNotFoundError, json.JSONDecodeError):
@@ -53,6 +65,8 @@ class User(db.Model):
     
     # Usage Quota (free-tier demo: 5 successful trainings per user)
     training_count = db.Column(db.Integer, server_default='0', nullable=False)
+    # Synthetic data generation count (2 max for regular users)
+    synthetic_count = db.Column(db.Integer, server_default='0', nullable=False)
     
     # Relationships
     datasets = db.relationship('Dataset', backref='owner', lazy='dynamic')
@@ -70,8 +84,13 @@ class User(db.Model):
     
     @property
     def is_whitelisted(self):
-        """Check if this user's email is in the unlimited-access whitelist."""
+        """Check if this user's email is in the training whitelist."""
         return (self.email or '').strip().lower() in _load_whitelist()
+
+    @property
+    def is_synthetic_whitelisted(self):
+        """Check if this user's email is in the synthetic data whitelist."""
+        return (self.email or '').strip().lower() in _load_synthetic_whitelist()
 
     @property
     def has_training_quota(self):
@@ -86,6 +105,20 @@ class User(db.Model):
         if self.is_whitelisted:
             return -1
         return max(0, 5 - (self.training_count or 0))
+
+    @property
+    def has_synthetic_quota(self):
+        """Check if the user can generate more synthetic datasets (2 max), or is whitelisted."""
+        if self.is_synthetic_whitelisted:
+            return True
+        return (self.synthetic_count or 0) < 2
+
+    @property
+    def synthetic_remaining(self):
+        """Number of synthetic generations still available (-1 means unlimited)."""
+        if self.is_synthetic_whitelisted:
+            return -1
+        return max(0, 2 - (self.synthetic_count or 0))
     
     def to_dict(self):
         """Serialize to dictionary"""
@@ -101,6 +134,10 @@ class User(db.Model):
             'trainings_remaining': self.trainings_remaining,
             'has_training_quota': self.has_training_quota,
             'is_whitelisted': self.is_whitelisted,
+            'synthetic_count': self.synthetic_count or 0,
+            'synthetic_remaining': self.synthetic_remaining,
+            'has_synthetic_quota': self.has_synthetic_quota,
+            'is_synthetic_whitelisted': self.is_synthetic_whitelisted,
             'oauth_provider': self.oauth_provider,
             'avatar_url': self.avatar_url,
         }

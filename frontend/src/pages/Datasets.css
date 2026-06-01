@@ -1426,3 +1426,122 @@
         max-width: none;
     }
 }
+
+/* ═══════════════════════════════════════════════════ */
+/* AI QUOTA & API KEY SECTION                          */
+/* ═══════════════════════════════════════════════════ */
+
+.ds-ai-quota-section {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ds-ai-quota-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.ds-quota-ok {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+.ds-quota-exhausted {
+    background: rgba(251, 146, 60, 0.08);
+    border: 1px solid rgba(251, 146, 60, 0.25);
+    color: #fb923c;
+}
+
+.ds-quota-unlimited {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #34d399;
+}
+
+.ds-ai-apikey-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ds-ai-apikey-input-wrap {
+    flex: 1;
+    position: relative;
+}
+
+.ds-ai-apikey-input {
+    width: 100%;
+    padding: 9px 36px 9px 14px;
+    font-size: 0.84rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #e5e7eb;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: 'Fira Code', monospace;
+}
+
+.ds-ai-apikey-input::placeholder {
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.ds-ai-apikey-input:focus {
+    border-color: var(--color-primary, #10b981);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.ds-ai-apikey-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.ds-ai-apikey-clear:hover {
+    color: #f87171;
+}
+
+.ds-ai-groq-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #60a5fa;
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 8px 14px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+
+.ds-ai-groq-link:hover {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.35);
+    color: #93bbfd;
+}
+
+@media (max-width: 640px) {
+    .ds-ai-apikey-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

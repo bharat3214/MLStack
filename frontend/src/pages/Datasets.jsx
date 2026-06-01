@@ -46,7 +46,7 @@ const KAG_CATEGORIES = [
 export default function Datasets() {
     const queryClient = useQueryClient()
     const fileInputRef = useRef(null)
-    const { user } = useAuthStore()
+    const { user, checkAuth } = useAuthStore()
 
 
     /* ── local state ── */
@@ -71,6 +71,7 @@ export default function Datasets() {
     const [aiLoading, setAiLoading] = useState(false)
     const [aiError, setAiError] = useState(null)
     const [aiRefinePrompt, setAiRefinePrompt] = useState('')
+    const [userGroqKey, setUserGroqKey] = useState('')      // user-provided Groq API key
 
     /* ── queries ── */
     const { data: datasetsRes, isLoading } = useQuery({
@@ -164,7 +165,7 @@ export default function Datasets() {
         setAiError(null)
         setAiStage('prompting')
         try {
-            const res = await datasetsApi.aiSchema(prompt.trim())
+            const res = await datasetsApi.aiSchema(prompt.trim(), userGroqKey)
             const schema = res?.data?.schema
             if (schema?.error) throw new Error(schema.error)
             setAiSchema(schema)
@@ -187,10 +188,12 @@ export default function Datasets() {
                 name: aiSchema.name || 'ai_dataset',
                 num_rows: aiRows,
                 columns: aiSchema.columns,
-                save
+                save,
+                user_api_key: userGroqKey || ''
             })
             if (save && res?.data?.saved) {
                 queryClient.invalidateQueries({ queryKey: ['datasets'] })
+                await checkAuth()  // refresh user data so quota badge updates
                 setAiStage('saved')
                 showToast('success', res?.data?.message || 'Dataset saved!')
             } else {
@@ -461,6 +464,52 @@ export default function Datasets() {
                                         <h2>Describe Your Dataset</h2>
                                         <p>Tell the AI what kind of data you need — it will design the schema for you.</p>
                                     </div>
+                                </div>
+
+                                {/* Quota & API Key section */}
+                                <div className="ds-ai-quota-section">
+                                    {user?.is_synthetic_whitelisted ? (
+                                        <div className="ds-ai-quota-badge ds-quota-unlimited">
+                                            <Sparkles size={14} /> Unlimited AI Generations
+                                        </div>
+                                    ) : (
+                                        <div className={`ds-ai-quota-badge ${(user?.synthetic_remaining || 0) === 0 ? 'ds-quota-exhausted' : 'ds-quota-ok'}`}>
+                                            <Info size={14} />
+                                            {(user?.synthetic_remaining || 0) === 0
+                                                ? 'Free generations used up — enter your Groq API key below'
+                                                : `${user?.synthetic_remaining || 2} of 2 free generations remaining`
+                                            }
+                                        </div>
+                                    )}
+                                    <div className="ds-ai-apikey-row">
+                                        <div className="ds-ai-apikey-input-wrap">
+                                            <input
+                                                type="password"
+                                                className="ds-ai-apikey-input"
+                                                value={userGroqKey}
+                                                onChange={e => setUserGroqKey(e.target.value)}
+                                                placeholder="Paste your Groq API key (optional)"
+                                            />
+                                            {userGroqKey && (
+                                                <button className="ds-ai-apikey-clear" onClick={() => setUserGroqKey('')} title="Clear">
+                                                    <X size={14} />
+                                                </button>
+                                            )}
+                                        </div>
+                                        <a
+                                            href="https://console.groq.com/keys"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="ds-ai-groq-link"
+                                        >
+                                            Get free Groq key <ExternalLink size={12} />
+                                        </a>
+                                    </div>
+                                    {userGroqKey && (
+                                        <div className="ds-ai-quota-badge ds-quota-unlimited" style={{marginTop: '0.5rem'}}>
+                                            <CheckCircle size={14} /> Using your own API key — unlimited generations
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="ds-ai-prompt-box">

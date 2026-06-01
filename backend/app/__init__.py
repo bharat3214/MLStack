@@ -50,11 +50,14 @@ def header_whitelist():
 
 
 def _sync_usage_schema():
-    """Backfill training_count column for existing installs."""
+    """Backfill training_count and synthetic_count columns for existing installs."""
     if db.engine.dialect.name != 'postgresql':
         return
     db.session.execute(text(
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS training_count INTEGER NOT NULL DEFAULT 0"
+    ))
+    db.session.execute(text(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS synthetic_count INTEGER NOT NULL DEFAULT 0"
     ))
     db.session.commit()
 

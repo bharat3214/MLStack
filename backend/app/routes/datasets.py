@@ -1190,16 +1190,36 @@ def kaggle_download():
 @jwt_required()
 def ai_generate_schema():
     """Use AI to generate a dataset schema from a natural language prompt"""
-    from app.services.gemini_service import get_ai_service
+    from app.services.gemini_service import get_ai_service, AIService
 
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
     data = request.get_json()
     prompt = data.get('prompt', '').strip()
+    user_api_key = data.get('user_api_key', '').strip()
 
     if not prompt:
         return jsonify({'error': 'Please describe the dataset you want to create'}), 400
 
+    # If no user API key, check quota
+    if not user_api_key and user and not user.has_synthetic_quota:
+        return jsonify({
+            'error': 'You have used all 2 free AI generations. Provide your own Groq API key to continue.',
+            'quota_exceeded': True
+        }), 429
+
     try:
-        ai = get_ai_service()
+        # Use user's own Groq key or fall back to system key
+        if user_api_key:
+            ai = AIService()
+            ai.groq_key = user_api_key
+            from groq import Groq
+            ai.client = Groq(api_key=user_api_key)
+            ai.provider = 'groq'
+            ai.model = 'llama-3.3-70b-versatile'
+        else:
+            ai = get_ai_service()
+
         schema = ai.generate_dataset_schema(prompt, num_columns=data.get('num_columns', 8))
 
         if 'error' in schema:
@@ -1223,20 +1243,39 @@ def ai_generate_data():
     from datetime import datetime, timedelta
 
     user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
     data = request.get_json()
 
     name = data.get('name', 'ai_dataset').strip()
     num_rows = min(int(data.get('num_rows', 1000)), 100000)
     columns = data.get('columns', [])
     save = data.get('save', False)
+    user_api_key = data.get('user_api_key', '').strip()
+    using_own_key = bool(user_api_key)
 
     if not columns:
         return jsonify({'error': 'Schema columns are required'}), 400
 
+    # Quota check — skip if user provides their own API key
+    if not using_own_key and user and not user.has_synthetic_quota:
+        return jsonify({
+            'error': 'You have used all 2 free AI generations. Provide your own Groq API key to continue.',
+            'quota_exceeded': True
+        }), 429
+
     # Step 1: Get AI seed rows (30 rows for pattern)
     try:
-        from app.services.gemini_service import get_ai_service
-        ai = get_ai_service()
+        if using_own_key:
+            from app.services.gemini_service import AIService
+            ai = AIService()
+            ai.groq_key = user_api_key
+            from groq import Groq
+            ai.client = Groq(api_key=user_api_key)
+            ai.provider = 'groq'
+            ai.model = 'llama-3.3-70b-versatile'
+        else:
+            from app.services.gemini_service import get_ai_service
+            ai = get_ai_service()
         seed_rows = ai.generate_dataset_rows(columns, num_sample=min(30, num_rows))
     except Exception as e:
         print(f"AI row generation error: {e}", flush=True)
@@ -1377,6 +1416,9 @@ def ai_generate_data():
         )
 
         db.session.add(dataset_obj)
+        # Increment synthetic count (only for users using the system API key)
+        if not using_own_key and user:
+            user.synthetic_count = (user.synthetic_count or 0) + 1
         db.session.commit()
 
         return jsonify({
