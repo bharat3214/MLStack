@@ -1,0 +1,415 @@
+/* ═══════════════════════════════════════════
+   Before / After Comparison Slider — Premium Dark
+   ═══════════════════════════════════════════ */
+
+.ba-section {
+    padding: 6rem 1.5rem 2rem;
+    max-width: none;
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.ba-header {
+    margin-bottom: 2.5rem;
+}
+
+.ba-header .section-subtitle {
+    margin: 0 auto;
+}
+
+.ba-red {
+    color: #f87171;
+    font-weight: 800;
+}
+
+.ba-green {
+    background: linear-gradient(135deg, #34d399, #2dd4bf);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+/* ═══ Container ═══ */
+.ba-container {
+    position: relative;
+    width: 100%;
+    max-width: 780px;
+    margin: 0 auto;
+    aspect-ratio: 900 / 500;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: ew-resize;
+    user-select: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    background: #09090b;
+}
+
+.ba-panel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ba-panel-before {
+    z-index: 2;
+}
+
+.ba-panel-after {
+    z-index: 1;
+}
+
+/* ═══ Diagrams ═══ */
+.ba-diagram {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #09090b;
+    overflow: hidden;
+}
+
+.ba-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* ═══ SVG Typography ═══ */
+.ba-svg-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    user-select: none;
+}
+
+.ba-svg-text-before {
+    fill: #a1a1aa;
+}
+
+.ba-svg-text-after {
+    fill: #e4e4e7;
+}
+
+.ba-flow-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    fill: rgba(255, 255, 255, 0.35);
+    user-select: none;
+}
+
+/* ═══ Before Chaos Elements ═══ */
+.ba-chaos-line {
+    animation: chaosPulse 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes chaosPulse {
+    0% {
+        opacity: 0.3;
+        stroke-dashoffset: 0;
+    }
+    100% {
+        opacity: 0.75;
+        stroke-dashoffset: 20;
+    }
+}
+
+.ba-pill {
+    position: absolute;
+    z-index: 5;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ffffff;
+    border: 1px solid transparent;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: pillFloat 3s ease-in-out infinite alternate;
+}
+
+.ba-pill-error {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes pillFloat {
+    0% { transform: translate(-50%, -50%) translateY(0); }
+    100% { transform: translate(-50%, -50%) translateY(-5px); }
+}
+
+/* ═══ After Clean Pipelines ═══ */
+.ba-pipe-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.03);
+    stroke-width: 4;
+}
+
+.ba-pipe-fg {
+    fill: none;
+    stroke-width: 1.5;
+    opacity: 0.75;
+}
+
+.ba-pipe-fg-green {
+    stroke: #10b981;
+    filter: drop-shadow(0 0 1px rgba(16, 185, 129, 0.5));
+}
+
+.ba-pipe-fg-orange {
+    stroke: #fb923c;
+    filter: drop-shadow(0 0 1px rgba(251, 146, 96, 0.5));
+}
+
+/* ═══ Live Flow Animation ═══ */
+.ba-flow-particle {
+    filter: drop-shadow(0 0 4px currentColor);
+}
+
+/* ═══ SVG Center Hub Box ═══ */
+.ba-svg-hub-box {
+    fill: #0c0c0e;
+    stroke: #10b981;
+    filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.15));
+}
+
+.ba-hub-svg-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    fill: #34d399;
+    user-select: none;
+}
+
+.ba-hub-module-rect {
+    fill: #141416;
+    stroke: rgba(255, 255, 255, 0.06);
+    transition: stroke 0.3s, fill 0.3s;
+}
+
+.ba-hub-module-rect:hover {
+    fill: #18181b;
+    stroke: rgba(16, 185, 129, 0.35);
+}
+
+.ba-hub-module-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 9.5px;
+    font-weight: 800;
+    fill: #fb923c;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+
+.ba-hub-module-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    fill: #71717a;
+    user-select: none;
+}
+
+.ba-hub-secure-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    fill: #34d399;
+    user-select: none;
+}
+
+/* ═══ Pulsing Live Nodes ═══ */
+.ba-node-pulse {
+    animation: greenPulse 2.5s infinite alternate ease-in-out;
+}
+
+.ba-node-pulse-orange {
+    animation: orangePulse 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes greenPulse {
+    0% { stroke: #10b981; filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.3)); }
+    100% { stroke: #34d399; filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.7)); }
+}
+
+@keyframes orangePulse {
+    0% { stroke: #f97316; filter: drop-shadow(0 0 2px rgba(249, 115, 22, 0.3)); }
+    100% { stroke: #fb923c; filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.7)); }
+}
+
+/* ═══ Badge Labels ═══ */
+.ba-badge-label {
+    position: absolute;
+    top: 14px;
+    z-index: 5;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+}
+
+.ba-badge-before {
+    left: 14px;
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ba-badge-after {
+    right: 14px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* ═══ Success Row ═══ */
+.ba-success-row {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.ba-success-pill {
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    white-space: nowrap;
+}
+
+/* ═══ Drag Handle ═══ */
+.ba-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.ba-handle-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2.5px;
+    background: #ffffff;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.ba-handle-btn {
+    position: relative;
+    z-index: 11;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1f2937;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.35),
+        0 0 0 4px rgba(255, 255, 255, 0.15);
+    cursor: ew-resize;
+    pointer-events: auto;
+    animation: handlePulse 2s ease-in-out infinite;
+}
+
+@keyframes handlePulse {
+    0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.35), 0 0 0 4px rgba(255,255,255,0.15); }
+    50%      { box-shadow: 0 4px 20px rgba(0,0,0,0.45), 0 0 0 8px rgba(16,185,129,0.22); }
+}
+
+/* ═══ Hint ═══ */
+.ba-hint {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--color-gray-500);
+    letter-spacing: 0.02em;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 900px) {
+    .ba-section {
+        width: 92%;
+        padding: 3rem 1rem 1.5rem;
+    }
+
+    .ba-success-row {
+        gap: 6px;
+    }
+
+    .ba-success-pill {
+        padding: 4px 10px;
+        font-size: 0.6rem;
+    }
+
+    .ba-pill {
+        font-size: 0.58rem;
+        padding: 4px 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    .ba-section {
+        width: 96%;
+    }
+
+    .ba-container {
+        border-radius: 14px;
+    }
+
+    .ba-badge-label {
+        font-size: 0.6rem;
+        padding: 4px 10px;
+    }
+
+    .ba-success-row {
+        flex-wrap: wrap;
+        justify-content: center;
+        bottom: 8px;
+    }
+
+    .ba-success-pill {
+        font-size: 0.52rem;
+        padding: 3px 8px;
+    }
+
+    .ba-svg-text {
+        font-size: 9.5px;
+    }
+
+    .ba-handle-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .ba-handle-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+}

@@ -175,114 +175,142 @@ export default function SettingsPage() {
     const trainingsRemaining = user?.trainings_remaining ?? (5 - trainingCount)
 
     /* ─────────── Profile Tab ─────────── */
-    const renderProfile = () => (
-        <div className="st-section">
-            <h2 className="st-section-title">Profile Information</h2>
-            <p className="st-section-desc">Your account details are shown below.</p>
+    const renderProfile = () => {
+        const percentUsed = Math.min(100, Math.max(0, (trainingCount / 5) * 100))
+        return (
+            <div className="st-section">
+                <h2 className="st-section-title">Profile Information</h2>
+                <p className="st-section-desc">Manage your workspace metadata and credentials.</p>
 
-            <div className="st-profile-card">
-                <div className="st-avatar-big">
-                    {user?.username?.[0]?.toUpperCase() || 'U'}
-                </div>
-                <div className="st-profile-fields">
-                    <div className="st-field">
-                        <label><User size={14} /> Username</label>
-                        {editingUsername ? (
-                            <div className="st-field-edit">
-                                <input
-                                    className="st-field-input"
-                                    value={newUsername}
-                                    onChange={e => setNewUsername(e.target.value)}
-                                    placeholder="New username"
-                                    maxLength={32}
-                                    autoFocus
-                                    onKeyDown={e => {
-                                        if (e.key === 'Enter') handleSaveUsername()
-                                        if (e.key === 'Escape') { setEditingUsername(false); setNewUsername(user?.username || '') }
-                                    }}
-                                />
-                                <button
-                                    className="st-btn-icon st-btn-save"
-                                    onClick={handleSaveUsername}
-                                    disabled={savingUsername}
-                                    title="Save"
-                                >
-                                    {savingUsername ? <span className="st-spinner" /> : <Check size={16} />}
-                                </button>
-                                <button
-                                    className="st-btn-icon st-btn-cancel"
-                                    onClick={() => { setEditingUsername(false); setNewUsername(user?.username || '') }}
-                                    title="Cancel"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="st-field-value st-field-editable">
-                                {user?.username || '—'}
-                                <button
-                                    className="st-btn-icon st-btn-edit"
-                                    onClick={() => { setNewUsername(user?.username || ''); setEditingUsername(true) }}
-                                    title="Edit username"
-                                >
-                                    <Pencil size={14} />
-                                </button>
-                            </div>
-                        )}
+                <div className="st-profile-card">
+                    <div className="st-avatar-wrap">
+                        <div className="st-avatar-glow" />
+                        <div className="st-avatar-inner">
+                            {user?.username?.[0]?.toUpperCase() || 'U'}
+                        </div>
                     </div>
-                    <div className="st-field">
-                        <label><Mail size={14} /> Email</label>
-                        <div className="st-field-value">{user?.email || '—'}</div>
-                    </div>
-                    <div className="st-field">
-                        <label><Sparkles size={14} /> Usage</label>
-                        <div className="st-field-value">
-                            {user?.is_whitelisted ? (
-                                <span className="st-plan-tag st-tag-pro">
-                                    ✨ Unlimited Access
-                                </span>
+                    <div className="st-profile-fields">
+                        <div className="st-field">
+                            <label><User size={12} /> Username</label>
+                            {editingUsername ? (
+                                <div className="st-field-edit">
+                                    <input
+                                        className="st-field-input"
+                                        value={newUsername}
+                                        onChange={e => setNewUsername(e.target.value)}
+                                        placeholder="New username"
+                                        maxLength={32}
+                                        autoFocus
+                                        onKeyDown={e => {
+                                            if (e.key === 'Enter') handleSaveUsername()
+                                            if (e.key === 'Escape') { setEditingUsername(false); setNewUsername(user?.username || '') }
+                                        }}
+                                    />
+                                    <button
+                                        className="st-btn-icon st-btn-save"
+                                        onClick={handleSaveUsername}
+                                        disabled={savingUsername}
+                                        title="Save"
+                                    >
+                                        {savingUsername ? <span className="st-spinner" /> : <Check size={16} />}
+                                    </button>
+                                    <button
+                                        className="st-btn-icon st-btn-cancel"
+                                        onClick={() => { setEditingUsername(false); setNewUsername(user?.username || '') }}
+                                        title="Cancel"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
                             ) : (
-                                <span className={`st-plan-tag ${trainingsRemaining === 0 ? 'st-tag-warn' : 'st-tag-pro'}`}>
-                                    {trainingCount}/5 trainings used
-                                </span>
+                                <div className="st-field-value st-field-editable">
+                                    <span className="st-username-text">{user?.username || '—'}</span>
+                                    <button
+                                        className="st-btn-icon st-btn-edit"
+                                        onClick={() => { setNewUsername(user?.username || ''); setEditingUsername(true) }}
+                                        title="Edit username"
+                                    >
+                                        <Pencil size={12} />
+                                    </button>
+                                </div>
                             )}
                         </div>
-                    </div>
-                    <div className="st-field">
-                        <label><Shield size={14} /> Account status</label>
-                        <div className="st-field-value">
-                            <span className="st-status-active">● Active</span>
+
+                        <div className="st-field">
+                            <label><Mail size={12} /> Email Address</label>
+                            <div className="st-field-value">{user?.email || '—'}</div>
+                        </div>
+
+                        <div className="st-field">
+                            <label><Shield size={12} /> System Status</label>
+                            <div className="st-field-value">
+                                <span className="st-status-active">
+                                    <span className="st-status-pulse"></span>
+                                    Active Developer Node
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="st-danger-zone">
-                <h3>Danger Zone</h3>
-                <button className="st-btn st-btn-danger" onClick={handleLogout}>
-                    <LogOut size={16} /> Log out of this device
-                </button>
+                <div className="st-usage-section">
+                    <h3 className="st-usage-title">
+                        <Sparkles size={14} className="text-emerald" />
+                        Compute Allotment
+                    </h3>
+                    {user?.is_whitelisted ? (
+                        <div className="st-unlimited-badge">
+                            <Sparkles size={16} className="text-emerald animate-pulse" />
+                            <span>Enterprise License: Unlimited Core Compute Enabled</span>
+                        </div>
+                    ) : (
+                        <div className="st-usage-container">
+                            <div className="st-usage-meta">
+                                <span className="st-meta-label">Model Training Quota</span>
+                                <span className="st-meta-value">{trainingCount} / 5 used</span>
+                            </div>
+                            <div className="st-usage-bar-track">
+                                <div 
+                                    className={`st-usage-bar-fill ${percentUsed >= 80 ? 'bar-warn' : ''}`} 
+                                    style={{ width: `${percentUsed}%` }}
+                                />
+                            </div>
+                            <p className="st-usage-hint">
+                                Standard tier allows 5 concurrent model training runs. Upgrade to remove resource constraints.
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                <div className="st-danger-zone">
+                    <h3>Danger Zone</h3>
+                    <button className="st-btn st-btn-danger" onClick={handleLogout}>
+                        <LogOut size={16} /> Log out of this session
+                    </button>
+                </div>
             </div>
-        </div>
-    )
+        )
+    }
 
     /* ─────────── Security Tab ─────────── */
     const renderSecurity = () => (
         <div className="st-section">
             <h2 className="st-section-title">Change Password</h2>
             <p className="st-section-desc">
-                Use at least 8 characters with a mix of letters and numbers.
+                Update your security keyphrase to authorize system credentials.
             </p>
 
             <form className="st-form" onSubmit={handleChangePassword}>
                 <div className="st-input-group">
                     <label>Current Password</label>
                     <div className="st-input-wrap">
+                        <Lock size={15} className="st-input-icon" />
                         <input
                             type={showCurrent ? 'text' : 'password'}
                             value={currentPwd}
                             onChange={e => setCurrentPwd(e.target.value)}
                             placeholder="Enter current password"
+                            style={{ paddingLeft: '2.6rem' }}
                             required
                         />
                         <button type="button" className="st-eye" onClick={() => setShowCurrent(!showCurrent)}>
@@ -294,11 +322,13 @@ export default function SettingsPage() {
                 <div className="st-input-group">
                     <label>New Password</label>
                     <div className="st-input-wrap">
+                        <Shield size={15} className="st-input-icon" />
                         <input
                             type={showNew ? 'text' : 'password'}
                             value={newPwd}
                             onChange={e => setNewPwd(e.target.value)}
                             placeholder="Enter new password"
+                            style={{ paddingLeft: '2.6rem' }}
                             required
                         />
                         <button type="button" className="st-eye" onClick={() => setShowNew(!showNew)}>
@@ -310,11 +340,13 @@ export default function SettingsPage() {
                 <div className="st-input-group">
                     <label>Confirm New Password</label>
                     <div className="st-input-wrap">
+                        <Shield size={15} className="st-input-icon" />
                         <input
                             type="password"
                             value={confirmPwd}
                             onChange={e => setConfirmPwd(e.target.value)}
                             placeholder="Re-enter new password"
+                            style={{ paddingLeft: '2.6rem' }}
                             required
                         />
                     </div>
@@ -339,6 +371,7 @@ export default function SettingsPage() {
                 <button
                     type="submit"
                     className="st-btn st-btn-primary"
+                    style={{ marginTop: '0.5rem' }}
                     disabled={changingPwd || !currentPwd || !newPwd || !confirmPwd}
                 >
                     {changingPwd ? <><span className="st-spinner" /> Updating…</> : 'Update Password'}
@@ -354,38 +387,55 @@ export default function SettingsPage() {
         <div className="st-section">
             <h2 className="st-section-title">Notifications</h2>
             <p className="st-section-desc">
-                Choose which events you want to be notified about. Preferences sync with your account.
+                Choose which events trigger notification webhooks. Preferences sync globally.
             </p>
 
-            <div className="st-notif-list">
-                {NOTIF_ITEMS.map(item => (
-                    <div className="st-notif-row" key={item.key}>
-                        <div className="st-notif-info">
-                            <span className="st-notif-label">{item.label}</span>
-                            <span className="st-notif-desc">{item.desc}</span>
+            {notifsLoading ? (
+                <div className="st-notif-loading" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 0', gap: '1rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.88rem' }}>
+                    <div className="st-spinner" style={{ borderTopColor: '#10b981', width: '22px', height: '22px' }}></div>
+                    <span>Synchronizing with core engine...</span>
+                </div>
+            ) : (
+                <div className="st-notif-list">
+                    {NOTIF_ITEMS.map(item => (
+                        <div className="st-notif-row" key={item.key}>
+                            <div className="st-notif-info">
+                                <span className="st-notif-label">{item.label}</span>
+                                <span className="st-notif-desc">{item.desc}</span>
+                            </div>
+                            <button
+                                className={`st-toggle ${notifs[item.key] ? 'st-toggle-on' : ''}`}
+                                onClick={() => toggleNotif(item.key)}
+                                aria-label={`Toggle ${item.label}`}
+                            >
+                                <span className="st-toggle-thumb" />
+                            </button>
                         </div>
-                        <button
-                            className={`st-toggle ${notifs[item.key] ? 'st-toggle-on' : ''}`}
-                            onClick={() => toggleNotif(item.key)}
-                            aria-label={`Toggle ${item.label}`}
-                        >
-                            <span className="st-toggle-thumb" />
-                        </button>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 
     /* ─────────── RENDER ─────────── */
     return (
         <div className="st-page">
-            <div className="st-bg-glow st-glow1" />
-            <div className="st-bg-glow st-glow2" />
+            {/* Global Page Background Grid & Floating Telemetry Orbs */}
+            <div className="global-bg-grid" />
+            <div className="global-orb global-orb-green" style={{ top: '5%', left: '-8%', width: '400px', height: '400px' }} />
+            <div className="global-orb global-orb-orange" style={{ top: '45%', right: '-6%', width: '320px', height: '320px', animationDelay: '-6s' }} />
+            <div className="global-orb global-orb-blue" style={{ top: '80%', left: '8%', width: '350px', height: '350px', animationDelay: '-12s' }} />
 
             <header className="st-page-header">
-                <h1 className="st-page-title">Settings</h1>
-                <p className="st-page-sub">Manage your account and security.</p>
+                <div className="st-page-badge">
+                    <span className="badge-pulse"></span>
+                    <span className="badge-text">CONTROL PANEL // GLOBAL CONFIG</span>
+                </div>
+                <h1 className="st-page-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    Settings
+                </h1>
+                <p className="st-page-sub">Manage your account profile, telemetry parameters, and security credentials.</p>
+                <div className="st-header-divider" />
             </header>
 
             <div className="st-layout">
@@ -397,7 +447,7 @@ export default function SettingsPage() {
                             className={`st-tab ${activeTab === t.id ? 'st-tab-active' : ''}`}
                             onClick={() => setActiveTab(t.id)}
                         >
-                            <t.icon size={18} />
+                            <t.icon size={18} className="tab-icon" />
                             <span>{t.label}</span>
                             <ChevronRight size={14} className="st-tab-arrow" />
                         </button>
@@ -409,7 +459,6 @@ export default function SettingsPage() {
                     {activeTab === 'profile'       && renderProfile()}
                     {activeTab === 'security'      && renderSecurity()}
                     {activeTab === 'notifications' && renderNotifications()}
-
                 </div>
             </div>
         </div>

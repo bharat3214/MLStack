@@ -14,15 +14,18 @@ const BentoGrid = ({ children, className = '' }) => {
     )
 }
 
-const BentoCard = ({ name, className = '', background, Icon, description, href, cta }) => {
+const BentoCard = ({ name, className = '', background, Icon, description, href, cta, visual }) => {
     return (
         <div className={`bento-card ${className}`}>
-            {background && <div className="bento-bg">{background}</div>}
+            {visual && <div className="bento-card-visual">{visual}</div>}
             <div className="bento-content">
-                <Icon className="bento-icon" size={28} />
-                <h3 className="bento-title">{name}</h3>
+                <div className="bento-header-row">
+                    <Icon className="bento-icon" size={20} />
+                    <h3 className="bento-title">{name}</h3>
+                </div>
                 <p className="bento-desc">{description}</p>
             </div>
+            {background && <div className="bento-bg">{background}</div>}
             {cta && (
                 <div className="bento-cta">
                     <a href={href || '#'} className="bento-cta-link">
