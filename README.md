@@ -2,222 +2,164 @@
 
 ## Overview
 
-**MLStack** is a no-code machine learning platform designed to simplify the end-to-end ML workflow for **structured, time-series, and image data**. The platform enables users to upload datasets, automatically train predictive models, and generate insights and predictions **without writing any machine learning code**.
+**MLStack** is an open-source, no-code machine learning platform designed to simplify the end-to-end ML workflow for **structured, time-series, and image data**. Upload your datasets, let the system auto-train models using 10+ algorithms, and make predictions — all **without writing any code**.
 
-MLStack follows a **rule-based AutoML approach**, where the system automatically performs data profiling, preprocessing, model selection, training, evaluation, and explainability. Instead of deploying models as external services, predictions are executed internally and displayed directly through an interactive user interface, keeping the system **simple, efficient, and easy to use**.
+The platform follows a **rule-based AutoML approach** with intelligent fallbacks: automatic data profiling, preprocessing, model selection, training, evaluation, and explainability. Predictions are served through an interactive **Streamlit** interface embedded directly in the dashboard.
 
-The platform is built entirely on **open-source technologies**, including **Streamlit** for the no-code interface, **Pandas and scikit-learn** for data processing and model training, and **MinIO** for scalable object storage of datasets, models, and artifacts. MLStack is optimized for **educational use, rapid prototyping, and small-to-medium scale analytics**, while being architecturally ready to scale to distributed systems in future iterations.
+MLStack is built entirely on **open-source technologies** — React, Flask, Streamlit, scikit-learn, XGBoost, LightGBM, PostgreSQL, MinIO, Redis, and Docker. It is designed as a **portfolio-grade, production-ready project** that demonstrates full-stack engineering, ML engineering, and cloud deployment skills.
 
 ---
 
 ## Key Highlights
 
-* 🚀 **No-code, user-friendly ML workflow**
+* 🚀 **No-code ML workflow** — upload a CSV, describe your goal, train models, predict
 * 📊 **Supports tabular (CSV/Excel), time-series, and image datasets**
-* ⚙️ **AI-powered goal analysis** (Groq/Gemini integration)
-* ⚖️ **Automated Data Auto-Balancing** (Detects skewed classes and applies SMOTE synthetic generation)
-* ⚙️ **Automated data profiling, preprocessing, and model training**
-* 📈 **Built-in model evaluation and explainability**
-* 🧩 **Open-source, lightweight, and scalable-by-design**
+* 🤖 **AI-powered goal analysis** — Groq → Gemini → Ollama fallback chain
+* 🧬 **AI Synthetic Data Generation** — describe a dataset in natural language, AI generates realistic data
+* ⚖️ **Automated Data Auto-Balancing** — detects skewed classes and applies SMOTE
+* 🔍 **Kaggle Integration** — search and import datasets directly from Kaggle
+* 📈 **10+ ML algorithms** — Logistic Regression, Random Forest, XGBoost, LightGBM, SVM, etc.
+* 🧩 **Model Explainability** — built-in SHAP explanations
+* 🔐 **OAuth login** — Google & GitHub SSO + email/password auth
+* 📧 **Email notifications** — training completed/failed alerts via SMTP
+* 🐳 **Fully Dockerized** — single `docker compose up` to run everything
+* 🎯 **Free tier with quotas** — 5 training runs & 2 AI generations per user (configurable via whitelists)
 
 ---
 
-# 🏗️ System Architecture (React + Flask + Streamlit + MinIO)
-
-## High-Level Architecture
+## 🏗️ System Architecture
 
 ```
-┌────────────────────────────────────────────┐
-│              User Browser                  │
-MLStack follows a **rule-based AutoML approach**, where the system automatically performs data profiling, preprocessing, model selection, training, evaluation, and explainability. Instead of deploying models as external services, predictions are executed internally and displayed directly through an interactive user interface, keeping the system **simple, efficient, and easy to use**.
-                │               │
-                ▼               ▼
-┌────────────────────────┐  ┌────────────────────────┐
-│   (Main Application)   │  │   (Prediction & ML UI) │
-│                        │  │                        │
-│ • Login / Dashboard    │  │ • Training progress    │
-│ • Dataset management   │  │ • Predictions          │
-│ • Job history          │  │ • Charts & insights    │
-└───────────────┬────────┘  └───────────────┬────────┘
-                │ REST API                  │ REST / Python
-                ▼                           ▼
-┌────────────────────────────────────────────┐
-│              Flask Backend                 │
-│          (Core Orchestrator API)           │
-│ • Auth & user management                   │
-│ • Dataset registration                     │
-│ • AutoML workflow control                  │
-│ • Prediction orchestration                 │
-└───────────────┬───────────────┬────────────┘
-                │               │
-                ▼               ▼
-┌────────────────────────┐  ┌────────────────────────┐
-│      PostgreSQL        │  │        MinIO           │
-│   (Metadata Store)     │  │  (Object Storage)      │
-│                        │  │                        │
-│ • Users                │  │ • Raw datasets         │
-│ • Experiments          │  │ • Processed data       │
-│ • Job status           │  │ • Trained models       │
-│ • Configs              │  │ • Pipelines            │
-└────────────────────────┘  │ • Metrics & artifacts  │
-                             └────────────────────────┘
+┌─────────────────────────────────────────────┐
+│               User Browser                  │
+│    React Dashboard  ←→  Streamlit Iframe    │
+│         :3000                :8501           │
+└──────────────┬───────────────┬──────────────┘
+               │ REST API      │ Internal API
+               ▼               ▼
+┌─────────────────────────────────────────────┐
+│             Flask Backend (:5000)            │
+│         (Core Orchestrator API)              │
+│  • Auth & user management                   │
+│  • Dataset registration & profiling         │
+│  • AutoML workflow control                  │
+│  • AI synthetic data generation             │
+│  • Prediction orchestration                 │
+│  • Usage quota enforcement                  │
+└──────────┬──────────┬──────────┬────────────┘
+           │          │          │
+           ▼          ▼          ▼
+┌──────────────┐ ┌──────────┐ ┌──────────────┐
+│  PostgreSQL  │ │  MinIO   │ │    Redis     │
+│  (Metadata)  │ │ (Storage)│ │  (Celery)    │
+│              │ │          │ │              │
+│ • Users      │ │ • Datasets│ │ • Task queue│
+│ • Experiments│ │ • Models  │ │ • Sessions  │
+│ • Jobs       │ │ • Artifacts│ │             │
+└──────────────┘ └──────────┘ └──────────────┘
 ```
 
-
-# 🔄 Flow Summary
+### Flow Summary
 
 ```
-React UI
-   ↓
-   ↓
-Model + Artifacts → MinIO
-   ↓
-Streamlit UI
-   ↓
-Predictions in Browser
+User → React UI → Flask API → AutoML Pipeline → Model + Artifacts → MinIO
+                                                        ↓
+                              Streamlit UI ← Model Package (ZIP)
+                                                        ↓
+                                            Predictions in Browser
 ```
 
 ---
 
-# 🚀 Getting Started
+## 🚀 Getting Started
 
-## Prerequisites
+### Prerequisites
 
-- **Python 3.10+**
-- **Node.js 18+**
-- **Docker & Docker Compose** (for database and storage)
-
----
-
-## 📦 Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/bharat3214/MLStack.git
-cd MLStack
-```
-
-### 2. Set Up Environment Variables
-
-```bash
-cp .env.example .env
-# Edit .env with your configuration if needed
-```
+- **Docker & Docker Compose** (recommended)
+- **Python 3.10+** (for local development)
+- **Node.js 18+** (for local development)
 
 ---
 
 ## 🐳 Running with Docker (Recommended)
 
-### Start Services
-
-Choose the command based on your hardware:
-**Option A: CPU Only (Standard)**
-```bash
-docker-compose up --build
-```
-docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
-```
-You can also build individual images with custom arguments:
+### 1. Clone & Configure
 
 ```bash
-# Build backend for GPU manually
-docker build -t mlstack-backend-gpu \
-   --build-arg BASE_IMAGE=nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
-   -f docker/Dockerfile.backend .
+git clone https://github.com/bharat3214/MLStack.git
+cd MLStack
+cp .env.example .env
+# Edit .env with your API keys (GROQ_API_KEY, KAGGLE credentials, etc.)
 ```
 
-**Access Points:**
--  **Streamlit App**: http://localhost:8501
+### 2. Start All Services
+
+```bash
+docker compose up --build -d
+```
+
+### 3. Access Points
+
+| Service | URL |
+|---------|-----|
+| **React Dashboard** | http://localhost:3000 |
+| **Flask API** | http://localhost:5000/api |
+| **Streamlit Predictions** | http://localhost:8501 |
+| **MinIO Console** | http://localhost:9001 |
 
 ### Stop Services
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ---
 
+## 🖥️ Local Development (Without Docker)
 
-### Step 1: Start Infrastructure Only
+### Step 1: Start Infrastructure
 
 ```bash
-docker-compose up -d postgres redis minio
+docker compose up -d postgres redis minio
+```
 
-### Step 2: Backend Setup
+### Step 2: Backend
 
 ```bash
 cd backend
-
-# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Initialize database
-python migrations.py init
-
-# (Optional) Seed with demo data
-python migrations.py seed
-
-# Run backend server
 python run.py
 ```
 
 Backend runs at: http://localhost:5000
 
-### Step 3: Frontend Setup
+### Step 3: Frontend
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
 ```
 
 Frontend runs at: http://localhost:3000
 
-### Step 4: Streamlit App (Optional)
+### Step 4: Streamlit App
 
 ```bash
 cd streamlit_app
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Run Streamlit
 streamlit run app.py
 ```
 
 Streamlit runs at: http://localhost:8501
 
-### Step 5: Celery Worker (For Background Training)
+### Step 5: Celery Worker (Background Training)
 
 ```bash
 cd backend
-
-# In a new terminal
 celery -A app.celery_app worker --loglevel=info
-```
-
----
-
-## 🧪 Running Tests
-
-```bash
-# Install test dependencies
-pip install pytest
-
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=.
 ```
 
 ---
@@ -226,90 +168,151 @@ pytest --cov=.
 
 ```
 MLStack/
-├── backend/                 # Flask API Server
+├── backend/                    # Flask API Server
 │   ├── app/
-│   │   ├── models/         # Database models
-│   │   ├── routes/         # API endpoints
-│   │   ├── services/       # Business logic
-│   │   └── tasks/          # Celery background tasks
-│   ├── migrations.py       # Database management
-│   └── run.py              # Entry point
+│   │   ├── models/            # SQLAlchemy models (User, Experiment, Dataset, etc.)
+│   │   ├── routes/            # API endpoints (auth, datasets, training, models)
+│   │   ├── services/          # Business logic (AI, MinIO, mailer, notifications)
+│   │   ├── whitelist.json     # Training quota whitelist (unlimited access emails)
+│   │   ├── synthetic_whitelist.json  # AI generation whitelist
+│   │   └── commands.py        # CLI commands (reset-training-counts)
+│   ├── requirements.txt
+│   └── run.py                 # Entry point
 │
-├── frontend/               # React Dashboard
+├── frontend/                   # React Dashboard (Vite)
 │   ├── src/
-│   │   ├── pages/          # Page components
-│   │   ├── components/     # Reusable UI components
-│   │   ├── services/       # API client
-│   │   └── store/          # State management
+│   │   ├── pages/             # Page components (Dashboard, Datasets, Training, etc.)
+│   │   ├── components/        # Reusable UI components
+│   │   ├── services/          # Axios API client
+│   │   └── store/             # Zustand state management
 │   └── package.json
 │
-├── ml_engine/              # AutoML Core
+├── ml_engine/                  # AutoML Core
 │   ├── automl/
-│   │   ├── tabular/        # Classification, Regression, Clustering
-│   │   ├── timeseries/     # ARIMA, Prophet, LSTM
-│   │   └── vision/         # Image Classification
-│   ├── preprocessing/      # Data preprocessors
-│   ├── explainability/     # SHAP explanations
-│   └── packaging/          # Model packaging
+│   │   ├── tabular/           # Classification, Regression, Clustering
+│   │   ├── timeseries/        # ARIMA, Prophet, LSTM
+│   │   └── vision/            # Image Classification
+│   ├── preprocessing/         # Data preprocessors
+│   ├── explainability/        # SHAP explanations
+│   └── packaging/             # Model packaging (ZIP with schema)
 │
-├── streamlit_app/          # Prediction UI
-├── docker/                 # Dockerfiles
-├── tests/                  # Unit & Integration tests
-└── docker-compose.yml      # Full stack orchestration
+├── streamlit_app/              # Prediction UI (embedded in React via iframe)
+├── mailer/                     # Node.js email service
+├── docker/                     # Dockerfiles
+├── tests/                      # Unit & Integration tests
+└── docker-compose.yml          # Full stack orchestration
 ```
 
 ---
 
-## 🔑 Demo Credentials
+## 🎯 Usage Quota System
 
-After running `python migrations.py seed`:
+MLStack uses a **free-tier quota model** designed for portfolio demos deployed on free-tier cloud:
 
+| Resource | Limit | Notes |
+|----------|-------|-------|
+| **Model Training** | 5 successful runs per user | Counted at completion only |
+| **AI Data Generation** | 2 saves per user | Users can bring their own Groq API key for unlimited |
+| **Datasets** | Unlimited uploads | No restrictions |
+| **Predictions** | Unlimited | No restrictions |
+| **Algorithms** | All 10+ unlocked | XGBoost, LightGBM, SVM, etc. |
+
+### Whitelists
+
+Admin users can bypass quotas via JSON config files:
+
+- **`backend/app/whitelist.json`** — unlimited training runs
+- **`backend/app/synthetic_whitelist.json`** — unlimited AI data generation
+
+```json
+{
+    "unlimited_access": [
+        "your-email@example.com"
+    ]
+}
 ```
-Email: demo@mlstack.local
-Password: demo123
+
+### Bring Your Own API Key
+
+Users can paste their own **Groq API key** in the AI data generation tab to bypass the 2-generation limit. A link to [console.groq.com/keys](https://console.groq.com/keys) is provided in the UI.
+
+### Admin CLI
+
+```bash
+# Reset all training counts (useful for demo resets)
+flask reset-training-counts
 ```
 
 ---
 
-## 🛡️ Environment Variables
+## 🔑 Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `FLASK_ENV` | Environment mode | development |
-| `DATABASE_URL` | PostgreSQL connection | postgresql://postgres:postgres@localhost:5432/mlstack_db |
-| `REDIS_URL` | Redis connection | redis://localhost:6379/0 |
-| `MINIO_ENDPOINT` | MinIO server | localhost:9000 |
-| `MINIO_ACCESS_KEY` | MinIO access key | minioadmin |
-| `MINIO_SECRET_KEY` | MinIO secret key | minioadmin |
-| `JWT_SECRET_KEY` | JWT signing key | your-jwt-secret-key |
-| `GROQ_API_KEY` | Groq API key for AI analysis | *(required for AI features)* |
-| `GEMINI_API_KEY` | Google Gemini API key (alternative) | *(optional)* |
+| `FLASK_ENV` | Environment mode | `development` |
+| `DATABASE_URL` | PostgreSQL connection | `postgresql://postgres:postgres@localhost:5432/mlstack_db` |
+| `REDIS_URL` | Redis connection | `redis://localhost:6379/0` |
+| `MINIO_ENDPOINT` | MinIO server | `localhost:9000` |
+| `MINIO_ACCESS_KEY` | MinIO access key | `minioadmin` |
+| `MINIO_SECRET_KEY` | MinIO secret key | `minioadmin` |
+| `JWT_SECRET_KEY` | JWT signing key | *(change in production)* |
+| `GROQ_API_KEY` | Groq API key (AI features) | *(required for AI)* |
+| `GEMINI_API_KEY` | Google Gemini key (fallback) | *(optional)* |
+| `KAGGLE_USERNAME` | Kaggle API username | *(optional)* |
+| `KAGGLE_API_TOKEN` | Kaggle API token | *(optional)* |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | *(optional)* |
+| `GITHUB_CLIENT_ID` | GitHub OAuth client ID | *(optional)* |
 
 ---
 
 ## 📝 API Documentation
 
 ### Authentication
-- `POST /api/auth/register` - Create new account
-- `POST /api/auth/login` - Login & get token
-- `GET /api/auth/me` - Get current user
+- `POST /api/auth/register` — Create new account
+- `POST /api/auth/login` — Login & get JWT token
+- `GET /api/auth/me` — Get current user profile
+- `POST /api/auth/google` — Google OAuth login
+- `POST /api/auth/github` — GitHub OAuth login
 
 ### Datasets
-- `GET /api/datasets` - List all datasets
-- `POST /api/datasets/upload` - Upload dataset
-- `GET /api/datasets/:id` - Get dataset details
+- `GET /api/datasets` — List all datasets
+- `POST /api/datasets/upload` — Upload dataset (CSV/Excel/images)
+- `GET /api/datasets/:id` — Get dataset details
+- `GET /api/datasets/:id/profile` — Get data profiling results
+- `GET /api/datasets/kaggle/search` — Search Kaggle datasets
+- `POST /api/datasets/kaggle/download` — Import from Kaggle
+- `POST /api/datasets/ai/schema` — AI-generate dataset schema
+- `POST /api/datasets/ai/generate` — AI-generate dataset rows
+- `POST /api/datasets/generate-synthetic` — Rule-based synthetic data
 
 ### Training
-- `POST /api/training/start` - Start training job
-- `GET /api/training/:id/status` - Get job status
+- `POST /api/training/start` — Start training job
+- `GET /api/training/:id/status` — Get job status & progress
+- `GET /api/training/:id/logs` — Get training logs
+- `POST /api/training/:id/cancel` — Cancel a running job
+- `POST /api/training/analyze-prompt` — AI-powered goal analysis
 
 ### Models
-- `GET /api/models` - List trained models
-- `GET /api/models/:id/schema` - Get prediction form schema
+- `GET /api/models` — List trained models
+- `GET /api/models/:id` — Get model details
+- `GET /api/models/:id/download` — Download model package (ZIP)
+- `GET /api/models/:id/schema` — Get prediction form schema
+- `GET /api/models/:id/graphs` — Get evaluation graphs
+- `DELETE /api/models/:id` — Delete a model
 
-### Predictions
-- `POST /api/predict/:modelId` - Make prediction
-- `POST /api/predict/:modelId/explain` - Get explanation
+### Notifications
+- `GET /api/notifications/preferences` — Get notification preferences
+- `PUT /api/notifications/preferences` — Update notification preferences
+
+---
+
+## 🧪 Running Tests
+
+```bash
+pip install pytest
+pytest
+pytest --cov=.
+```
 
 ---
 
@@ -331,4 +334,4 @@ This project is licensed under the MIT License.
 
 ## 🙋 Support
 
-For issues or questions, please open an issue on GitHub.
+For issues or questions, please open an issue on [GitHub](https://github.com/bharat3214/MLStack/issues).
