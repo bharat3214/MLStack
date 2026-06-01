@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { BentoGrid, BentoCard } from '../components/ui/BentoGrid'
 import { AnimatedTestimonials } from '../components/ui/AnimatedTestimonials'
@@ -153,26 +153,7 @@ const stats = [
 /* ═══════════════════════════════════
    TEAM DATA
    ═══════════════════════════════════ */
-const team = [
-    {
-        quote: "Building a platform that makes machine learning accessible to everyone is a dream come true.",
-        name: "Alok Gupta",
-        designation: "Lead Developer",
-        src: "/AlokGupta.png",
-    },
-    {
-        quote: "Ensuring our AI models are explainable and transparent is key to user trust.",
-        name: "Om Babar",
-        designation: "AI Engineer",
-        src: "/OmBabar.png",
-    },
-    {
-        quote: "Optimizing the training pipeline for speed and efficiency was a fun challenge.",
-        name: "Bharatkumar Gungoman",
-        designation: "Backend Engineer",
-        src: "/Bharat.jpeg",
-    },
-]
+
 
 /* ═══════════════════════════════════════════════
    LANDING PAGE COMPONENT
@@ -203,6 +184,8 @@ export default function LandingPage() {
         mouseY.set(0)
     }
 
+    const location = useLocation()
+
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 40)
         window.addEventListener('scroll', handleScroll)
@@ -213,6 +196,16 @@ export default function LandingPage() {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
     }
 
+    useEffect(() => {
+        if (location.state?.scrollTo) {
+            const section = location.state.scrollTo
+            setTimeout(() => {
+                scrollToSection(section)
+            }, 150)
+            window.history.replaceState({}, document.title)
+        }
+    }, [location])
+
     return (
         <div className="landing-page">
 
@@ -220,7 +213,7 @@ export default function LandingPage() {
             <nav className={`landing-nav ${scrolled ? 'nav-scrolled' : ''}`}>
                 <div className="nav-inner">
                     <div className="nav-brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <img src="/logo.png" alt="MLStack" className="brand-logo" />
+                        <Sparkles size={22} className="brand-icon" />
                         <span className="brand-text">MLStack</span>
                     </div>
 
@@ -231,10 +224,9 @@ export default function LandingPage() {
                     </div>
 
                     <div className="nav-actions">
-                        <button onClick={() => navigate('/login')} className="nav-link">Login</button>
                         <button onClick={() => navigate('/login')} className="nav-cta">
                             Get Started
-                            <ChevronRight size={16} />
+                            <ChevronRight size={18} />
                         </button>
                     </div>
                 </div>
@@ -250,13 +242,13 @@ export default function LandingPage() {
 
                 {/* Floating ML icons */}
                 {[
-                    { Icon: Brain,      x: '8%',  y: '18%', size: 28, delay: 0,   dur: 5 },
-                    { Icon: Network,    x: '85%', y: '12%', size: 24, delay: 0.8, dur: 6 },
-                    { Icon: Layers,     x: '5%',  y: '72%', size: 22, delay: 1.5, dur: 4.5 },
-                    { Icon: Atom,       x: '92%', y: '65%', size: 26, delay: 0.3, dur: 5.5 },
-                    { Icon: GitBranch,  x: '15%', y: '88%', size: 20, delay: 2,   dur: 4 },
-                    { Icon: Workflow,   x: '78%', y: '85%', size: 22, delay: 1.2, dur: 6.5 },
-                    { Icon: TrendingUp, x: '50%', y: '8%',  size: 20, delay: 0.6, dur: 5 },
+                    { Icon: Brain, x: '8%', y: '18%', size: 28, delay: 0, dur: 5 },
+                    { Icon: Network, x: '85%', y: '12%', size: 24, delay: 0.8, dur: 6 },
+                    { Icon: Layers, x: '5%', y: '72%', size: 22, delay: 1.5, dur: 4.5 },
+                    { Icon: Atom, x: '92%', y: '65%', size: 26, delay: 0.3, dur: 5.5 },
+                    { Icon: GitBranch, x: '15%', y: '88%', size: 20, delay: 2, dur: 4 },
+                    { Icon: Workflow, x: '78%', y: '85%', size: 22, delay: 1.2, dur: 6.5 },
+                    { Icon: TrendingUp, x: '50%', y: '8%', size: 20, delay: 0.6, dur: 5 },
                 ].map(({ Icon, x, y, size, delay, dur }, i) => (
                     <motion.div
                         key={i}
@@ -270,8 +262,8 @@ export default function LandingPage() {
                         }}
                         transition={{
                             opacity: { delay, duration: dur, repeat: Infinity },
-                            scale:   { delay, duration: 0.6 },
-                            y:       { delay, duration: dur, repeat: Infinity, ease: 'easeInOut' },
+                            scale: { delay, duration: 0.6 },
+                            y: { delay, duration: dur, repeat: Infinity, ease: 'easeInOut' },
                         }}
                     >
                         <Icon size={size} />
@@ -470,15 +462,15 @@ export default function LandingPage() {
                         <span>Usage</span>
                     </div>
                     <h2 className="section-title">Free for everyone</h2>
-                    <p className="section-subtitle">All features unlocked. No credit card required.</p>
+                    {/* <p className="section-subtitle">All features unlocked. No Payment Required.</p> */}
                 </FadeIn>
 
-                <div className="pricing-grid" style={{ maxWidth: 520, margin: '0 auto' }}>
+                <div className="pricing-grid pricing-grid-single">
                     <FadeIn delay={0.15}>
                         <div className="pricing-card pricing-card-pro">
                             <div className="pricing-popular-badge">
                                 <Zap size={12} />
-                                Portfolio Demo
+                                Fully Unlocked
                             </div>
                             <div className="pricing-card-header">
                                 <span className="pricing-plan-name">Free Tier</span>
@@ -513,7 +505,7 @@ export default function LandingPage() {
                 <FadeIn>
                     <div className="cta-content">
                         <h2>Ready to build smarter models?</h2>
-                        <p>Start training in under 5 minutes. No credit card required.</p>
+                        <p>Start training in under 5 minutes. No Payment Required.</p>
                         <button onClick={() => navigate('/login')} className="btn-hero-primary btn-lg">
                             <Sparkles size={20} />
                             Get Started Free
@@ -525,69 +517,8 @@ export default function LandingPage() {
                 <div className="cta-orb cta-orb-2" />
             </section>
 
-            {/* ═══ DEVELOPED BY ═══ */}
-            {/* <section className="team-section">
-                <FadeIn>
-                    <div className="section-label">
-                        <Code2 size={14} />
-                        <span>The Team</span>
-                    </div>
-                    <h2 className="section-title">Developed By</h2>
-                    <p className="section-subtitle">The minds behind MLStack.</p>
-                </FadeIn>
 
-                <FadeIn delay={0.2}>
-                    <AnimatedTestimonials testimonials={team} autoplay={false} />
-                </FadeIn>
-            </section> */}
-
-            {/* ═══ FOOTER ═══ */}
-            {/* ═══ FOOTER ═══ */}
             <footer className="landing-footer">
-                <div className="footer-content">
-                    {/* Brand Column */}
-                    <div className="footer-col brand-col">
-                        <div className="footer-brand">
-                            <img src="/logo.png" alt="MLStack" className="brand-logo footer-logo" />
-                            <span>MLStack</span>
-                        </div>
-                        <p className="footer-tagline">
-                            Empowering developers and businesses to build, train, and deploy AI models without writing code.
-                        </p>
-                        <div className="footer-socials">
-                            <a href="#" aria-label="Github"><Github size={18} /></a>
-                            <a href="#" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zl-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></a>
-                            <a href="#" aria-label="Discord"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-1.28 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006 1.28 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" /></svg></a>
-                        </div>
-                    </div>
-
-                    {/* Product */}
-                    <div className="footer-col">
-                        <h4>Product</h4>
-                        <a href="#">Features</a>
-                        <a href="#">Integrations</a>
-                        <a href="#">Usage</a>
-                        <a href="#">Changelog</a>
-                    </div>
-
-                    {/* Resources */}
-                    <div className="footer-col">
-                        <h4>Resources</h4>
-                        <a href="#">Documentation</a>
-                        <a href="#">API Reference</a>
-                        <a href="#">Community</a>
-                        <a href="#">Blog</a>
-                    </div>
-
-                    {/* Legal */}
-                    <div className="footer-col">
-                        <h4>Legal</h4>
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                        <a href="#">Security</a>
-                        <a href="#">Cookie Policy</a>
-                    </div>
-                </div>
 
                 <div className="footer-bottom">
                     <span className="footer-copy">© 2026 MLStack. All rights reserved.</span>

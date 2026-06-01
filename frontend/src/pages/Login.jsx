@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     ArrowRight,
@@ -10,9 +10,11 @@ import {
     User,
     Cpu,
     Terminal,
+    ChevronRight,
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import './Login.css'
+import './LandingPage.css'
 
 const modeCopy = {
     login: {
@@ -49,6 +51,17 @@ export default function Login() {
     } = useAuthStore()
 
     const [mode, setMode] = useState('login')
+    const [scrolled, setScrolled] = useState(false)
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 40)
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
+
+    const handleNavLinkClick = (sectionId) => {
+        navigate('/', { state: { scrollTo: sectionId } })
+    }
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [notice, setNotice] = useState('')
@@ -182,63 +195,45 @@ export default function Login() {
 
     return (
         <div className="login-page">
+            {/* ═══ NAVBAR ═══ */}
+            <nav className={`landing-nav ${scrolled ? 'nav-scrolled' : ''}`}>
+                <div className="nav-inner">
+                    <div className="nav-brand" onClick={() => navigate('/')}>
+                        <Sparkles size={22} className="brand-icon" />
+                        <span className="brand-text">MLStack</span>
+                    </div>
+
+                    <div className="nav-links">
+                        <button onClick={() => handleNavLinkClick('features')} className="nav-link">Features</button>
+                        <button onClick={() => handleNavLinkClick('how-it-works')} className="nav-link">How it Works</button>
+                        <button onClick={() => handleNavLinkClick('usage')} className="nav-link">Usage</button>
+                    </div>
+
+                    <div className="nav-actions">
+                        {mode === 'login' ? (
+                            <button onClick={() => switchMode('register')} className="nav-cta">
+                                Create Account
+                                <ChevronRight size={18} />
+                            </button>
+                        ) : mode === 'register' ? (
+                            <button onClick={() => switchMode('login')} className="nav-cta">
+                                Sign In
+                                <ChevronRight size={18} />
+                            </button>
+                        ) : null}
+                    </div>
+                </div>
+            </nav>
+
             <div className="auth-background">
                 <div className="auth-glow auth-glow-left" />
                 <div className="auth-glow auth-glow-right" />
             </div>
 
             <div className="auth-modal">
-                <div className="auth-side-panel">
-                    <div className="auth-brand">
-                        <div className="auth-brand-icon">
-                            <Sparkles size={24} />
-                        </div>
-                        <div>
-                            <h1>MLStack</h1>
-                            <p>Next-Gen No-Code AI Platform</p>
-                        </div>
-                    </div>
+   
 
-                    <div className="auth-side-copy">
-                        <span className="auth-side-badge">Enterprise Suite v2.4</span>
-                        <h2>Empower your models. Scale your insights.</h2>
-                        <p>
-                            An integrated, secure workspace to train, evaluate, and orchestrate production-grade machine learning pipelines instantly.
-                        </p>
-                    </div>
-
-                    <div className="auth-side-points">
-                        <div className="auth-point">
-                            <div className="auth-point-icon">
-                                <Cpu size={18} />
-                            </div>
-                            <div className="auth-point-content">
-                                <span className="auth-point-title">High-Performance Compute</span>
-                                <span className="auth-point-desc">Spin up GPU nodes on-demand with automated model auto-scaling and ultra-low latency.</span>
-                            </div>
-                        </div>
-                        <div className="auth-point">
-                            <div className="auth-point-icon">
-                                <ShieldCheck size={18} />
-                            </div>
-                            <div className="auth-point-content">
-                                <span className="auth-point-title">Unified Access Gatekeeper</span>
-                                <span className="auth-point-desc">Secure sign-in with Google, GitHub, or OTP verification to keep datasets isolated.</span>
-                            </div>
-                        </div>
-                        <div className="auth-point">
-                            <div className="auth-point-icon">
-                                <Terminal size={18} />
-                            </div>
-                            <div className="auth-point-content">
-                                <span className="auth-point-title">Explainable AI Sandbox</span>
-                                <span className="auth-point-desc">Interact with live prediction engines and real-time visual interpretations (SHAP/LIME).</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="auth-form-panel">
+             <div className="auth-form-panel">
                     <div className="auth-header">
                         {(mode === 'login' || mode === 'register') && (
                             <div className="auth-mode-switch">
@@ -327,7 +322,7 @@ export default function Login() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     className="input"
-                                    placeholder="you@company.com"
+                                    placeholder="Enter your email"
                                     required
                                     disabled={emailLocked}
                                 />
@@ -345,7 +340,7 @@ export default function Login() {
                                         value={formData.username}
                                         onChange={handleChange}
                                         className="input"
-                                        placeholder="team_owner"
+                                        placeholder="Enter your username"
                                         required
                                     />
                                 </div>
