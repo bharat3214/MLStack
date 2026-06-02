@@ -27,7 +27,7 @@ import {
     ExternalLink,
     Layers,
     GitBranch,
-    Workflow,
+    Workflow, 
     TrendingUp,
     Atom,
     Network,
@@ -347,22 +347,10 @@ const features = [
         visual: <PredictionsVisual />
     },
 ]
+ 
 
 
 
-/* ═══════════════════════════════════
-   STATS DATA
-   ═══════════════════════════════════ */
-const stats = [
-    { value: '10+', label: 'ML Models per run', icon: Zap },
-    { value: '<5min', label: 'Avg training time', icon: Clock },
-    { value: '100%', label: 'Open source', icon: Shield },
-    { value: '0', label: 'Lines of code needed', icon: Code2 },
-]
-
-/* ═══════════════════════════════════
-   TEAM DATA
-   ═══════════════════════════════════ */
 
 
 /* ═══════════════════════════════════════════════
@@ -763,20 +751,6 @@ export default function LandingPage() {
             {/* ═══ HOW IT WORKS ═══ */}
             <HowItWorksDiagram />
 
-            {/* ═══ STATS STRIP ═══ */}
-            <section className="stats-section">
-                <div className="stats-row">
-                    {stats.map((s, i) => (
-                        <FadeIn key={s.label} delay={i * 0.1}>
-                            <div className="stat-card">
-                                <s.icon size={20} className="stat-icon" />
-                                <span className="stat-value">{s.value}</span>
-                                <span className="stat-label">{s.label}</span>
-                            </div>
-                        </FadeIn>
-                    ))}
-                </div>
-            </section>
 
             {/* ═══ USAGE POLICY ═══ */}
             <UsageComputeSimulator />
