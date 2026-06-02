@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, sans-serif); background: transparent; color: var(--color-text-primary); }
+
+.tabs { display: flex; gap: 4px; padding: 4px; background: var(--color-background-secondary); border-radius: var(--border-radius-lg); margin-bottom: 16px; }
+.tab { flex: 1; padding: 8px 12px; border: none; background: transparent; border-radius: var(--border-radius-md); cursor: pointer; font-size: 13px; color: var(--color-text-secondary); font-family: inherit; transition: all .15s; }
+.tab.active { background: var(--color-background-primary); color: var(--color-text-primary); font-weight: 500; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+svg { width: 100%; display: block; }
+
+.box { cursor: pointer; }
+.box:hover rect { opacity: 0.85; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 12px; color: var(--color-text-secondary); }
+.leg-item { display: flex; align-items: center; gap: 5px; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+.info-bar { margin-top: 12px; padding: 10px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); font-size: 12px; color: var(--color-text-secondary); min-height: 38px; }
+.info-bar strong { color: var(--color-text-primary); }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('infra')">Infrastructure</button>
+  <button class="tab" onclick="switchTab('cicd')">CI/CD Pipeline</button>
+  <button class="tab" onclick="switchTab('changes')">Required Changes</button>
+</div>
+
+<!-- INFRA TAB -->
+<div class="panel active" id="tab-infra">
+<svg viewBox="0 0 680 620">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Internet -->
+<g class="box" onclick="info('Internet','Public traffic enters via Route 53 DNS → CloudFront CDN → Application Load Balancer. All internal services run in private subnets with no public IP.')">
+  <rect x="280" y="10" width="120" height="34" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="340" y="31" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">Internet</text>
+</g>
+<line x1="340" y1="44" x2="340" y2="68" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+<!-- Route 53 -->
+<g class="box" onclick="info('Route 53','Managed DNS with health checks. Points your domain → ALB (for API/app) and → CloudFront (for static SPA). Health checks auto-failover if ECS tasks go down.')">
+  <rect x="270" y="68" width="140" height="34" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="340" y="89" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">Route 53 (DNS)</text>
+</g>
+
+<!-- Split arrows -->
+<line x1="280" y1="85" x2="160" y2="120" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="400" y1="85" x2="520" y2="120" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+<!-- CloudFront -->
+<g class="box" onclick="info('CloudFront CDN','Serves the React SPA from S3. Provides global edge caching, HTTPS termination, and custom error pages. Origin: S3 bucket with static assets. Zero EC2 cost for frontend.')">
+  <rect x="60" y="118" width="180" height="36" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="150" y="140" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">CloudFront CDN</text>
+</g>
+
+<!-- ALB -->
+<g class="box" onclick="info('Application Load Balancer','HTTPS listener on port 443. Two target groups: /api/* → Flask ECS service, /* → React fallback. Also runs health checks on ECS tasks. Terminates SSL via ACM certificate.')">
+  <rect x="440" y="118" width="200" height="36" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="540" y="140" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">ALB (HTTPS)</text>
+</g>
+
+<!-- S3 frontend -->
+<g class="box" onclick="info('S3 Frontend Bucket','Stores compiled React build artifacts. Versioned. CloudFront Origin Access Control (OAC) ensures bucket is private — only CloudFront can read it. CI/CD pushes new builds via aws s3 sync.')">
+  <rect x="60" y="180" width="180" height="34" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="150" y="201" text-anchor="middle" font-size="12" font-weight="500" fill="#2C2C2A">S3 Frontend Bucket</text>
+</g>
+<line x1="150" y1="154" x2="150" y2="178" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+<!-- VPC boundary -->
+<rect x="30" y="230" width="620" height="360" rx="12" fill="none" stroke="#3B8BD4" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.5"/>
+<text x="50" y="250" font-size="11" fill="#185FA5" font-weight="500">VPC — Private Subnets</text>
+
+<!-- ALB arrow down -->
+<line x1="540" y1="154" x2="540" y2="270" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+<!-- Web ECS -->
+<g class="box" onclick="info('ECS Fargate — Web Service','Always-on service. Runs Flask API + Streamlit predictor containers. Auto-scales 1–4 tasks via ECS Service Auto Scaling (CPU > 70% triggers scale-out). Task role has ecs:RunTask permission to launch training tasks.')">
+  <rect x="390" y="268" width="200" height="52" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="490" y="287" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">ECS Fargate — Web</text>
+  <text x="490" y="305" text-anchor="middle" font-size="11" fill="#185FA5">Flask + Streamlit</text>
+</g>
+
+<!-- Training trigger arrow -->
+<line x1="390" y1="294" x2="290" y2="340" stroke="#EF9F27" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+<text x="330" y="320" text-anchor="middle" font-size="10" fill="#854F0B">boto3.run_task()</text>
+
+<!-- Training ECS -->
+<g class="box" onclick="info('ECS Fargate — Training Tasks (Ephemeral)','On-demand, isolated CPU containers. Spawned per training job. 2 vCPU / 4 GB RAM. Runs standalone_runner.py, writes results to RDS, uploads model artifacts to S3. Terminates after completion. Cost: ~$0.008/job.')">
+  <rect x="100" y="330" width="200" height="52" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+  <text x="200" y="349" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">ECS Fargate — Training</text>
+  <text x="200" y="367" text-anchor="middle" font-size="11" fill="#0F6E56">Ephemeral (on-demand)</text>
+</g>
+
+<!-- ECR -->
+<g class="box" onclick="info('ECR (Elastic Container Registry)','Private Docker registry. Stores: mlstack/backend image (shared by web + training tasks) and mlstack/frontend image. CI/CD pushes new images after each merge to main. ECS pulls from ECR on task start.')">
+  <rect x="390" y="400" width="200" height="36" rx="6" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+  <text x="490" y="422" text-anchor="middle" font-size="12" font-weight="500" fill="#712B13">ECR (Container Registry)</text>
+</g>
+<line x1="490" y1="320" x2="490" y2="398" stroke="#888" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arr)"/>
+
+<!-- RDS -->
+<g class="box" onclick="info('RDS PostgreSQL 15','Multi-AZ for production. In private subnet, no public access. Accessed by both Web and Training tasks. Stores experiments, datasets metadata, model scores. Training tasks update experiment.status during job lifecycle.')">
+  <rect x="100" y="490" width="160" height="36" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="180" y="512" text-anchor="middle" font-size="12" font-weight="500" fill="#2C2C2A">RDS PG 15</text>
+</g>
+<line x1="200" y1="382" x2="180" y2="488" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+<!-- S3 Datasets -->
+<g class="box" onclick="info('S3 Datasets / Models Bucket','Stores uploaded CSVs and trained model artifacts (.pkl, .joblib). Private, versioned. Training tasks download datasets and upload model files. Lifecycle policy: move models > 90 days to S3-IA for cost savings.')">
+  <rect x="290" y="490" width="160" height="36" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="370" y="512" text-anchor="middle" font-size="12" font-weight="500" fill="#2C2C2A">S3 (Datasets/Models)</text>
+</g>
+<line x1="200" y1="382" x2="370" y2="488" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+<!-- Secrets Manager -->
+<g class="box" onclick="info('Secrets Manager','Stores DB credentials, API keys, JWT secrets. ECS tasks fetch secrets at startup via IAM role — no hardcoded env vars. Enables secret rotation without redeployment. Reference in task def as valueFrom.')">
+  <rect x="480" y="490" width="140" height="36" rx="6" fill="#FBEAF0" stroke="#993556" stroke-width="0.5"/>
+  <text x="550" y="512" text-anchor="middle" font-size="12" font-weight="500" fill="#72243E">Secrets Manager</text>
+</g>
+<line x1="490" y1="436" x2="550" y2="488" stroke="#888" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arr)"/>
+
+<!-- CloudWatch -->
+<g class="box" onclick="info('CloudWatch','Centralized logs and metrics. ECS tasks stream logs via awslogs driver. Alarms: CPU > 80% → SNS notification, training task failures → alert. Dashboard tracks training job count, latency, error rates.')">
+  <rect x="490" y="268" width="140" height="36" rx="6" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+  <!-- This box moved, fix coordinates -->
+</g>
+
+<!-- Labels outside VPC for NAT/IGW -->
+<text x="638" y="290" font-size="10" fill="#185FA5">CloudWatch</text>
+<text x="638" y="304" font-size="10" fill="#185FA5">Logs</text>
+<line x1="490" y1="294" x2="634" y2="294" stroke="#185FA5" stroke-width="0.5" stroke-dasharray="3 2"/>
+
+</svg>
+<div class="info-bar" id="info-infra">Click any component to learn more about its role in the architecture.</div>
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#185FA5"></div>Compute / Network</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#0F6E56"></div>Training (ephemeral)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#854F0B"></div>CDN / Registry</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#5F5E5A"></div>Storage</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#993556"></div>Secrets</div>
+  <div class="leg-item" style="margin-left:8px;font-style:italic">Dashed = VPC boundary / ephemeral trigger</div>
+</div>
+</div>
+
+<!-- CICD TAB -->
+<div class="panel" id="tab-cicd">
+<svg viewBox="0 0 680 580">
+<defs>
+  <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Dev -->
+<g onclick="info2('Developer Pushes Code','git push to feature branch → opens PR. Branch protection rules require: 1 approval + all status checks pass before merge to main.')">
+  <rect x="240" y="14" width="200" height="40" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="340" y="30" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">Developer</text>
+  <text x="340" y="46" text-anchor="middle" font-size="11" fill="#185FA5">git push → PR</text>
+</g>
+
+<line x1="340" y1="54" x2="340" y2="78" stroke="#888" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+<!-- GitHub Actions -->
+<g onclick="info2('GitHub Actions — PR Checks','Triggered on: pull_request. Steps: 1) Lint (flake8/eslint) 2) Unit tests (pytest / vitest) 3) Build Docker image (no push) 4) Security scan (Trivy) 5) Post status check. Merge blocked if any step fails.')">
+  <rect x="200" y="78" width="280" height="52" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+  <text x="340" y="97" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">GitHub Actions</text>
+  <text x="340" y="114" text-anchor="middle" font-size="11" fill="#854F0B">Lint → Test → Scan (PR check)</text>
+</g>
+
+<line x1="340" y1="130" x2="340" y2="154" stroke="#888" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+<!-- Merge to main -->
+<g onclick="info2('Merge to main','PR merged by reviewer. Triggers the main deployment workflow. All subsequent steps are automated — no manual intervention needed.')">
+  <rect x="240" y="154" width="200" height="36" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+  <text x="340" y="169" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">Merge to main</text>
+  <text x="340" y="183" text-anchor="middle" font-size="11" fill="#0F6E56">Triggers deploy workflow</text>
+</g>
+
+<line x1="340" y1="190" x2="340" y2="214" stroke="#888" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+<!-- Build & Push -->
+<g onclick="info2('Build & Push to ECR','GitHub Actions: 1) aws ecr get-login-password 2) docker build -t mlstack/backend:$SHA 3) docker push to ECR 4) docker build -t mlstack/frontend:$SHA 5) aws s3 sync ./frontend/dist to S3 6) aws cloudfront create-invalidation. Images tagged with git SHA for traceability.')">
+  <rect x="170" y="214" width="340" height="52" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+  <text x="340" y="233" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">Build Docker Images</text>
+  <text x="340" y="250" text-anchor="middle" font-size="11" fill="#854F0B">Push to ECR + S3 sync + CF invalidation</text>
+</g>
+
+<line x1="340" y1="266" x2="340" y2="290" stroke="#888" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+<!-- Update task def -->
+<g onclick="info2('Update ECS Task Definitions','GitHub Actions: aws ecs register-task-definition with new ECR image URI (tagged with $SHA). Does this for BOTH task defs: mlstack-web-task and mlstack-training-task. Returns new task definition revision ARN.')">
+  <rect x="170" y="290" width="340" height="52" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="340" y="309" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">Register New Task Definitions</text>
+  <text x="340" y="326" text-anchor="middle" font-size="11" fill="#185FA5">mlstack-web-task + mlstack-training-task</text>
+</g>
+
+<line x1="340" y1="342" x2="340" y2="366" stroke="#888" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+<!-- Deploy -->
+<g onclick="info2('Rolling Deploy to ECS','aws ecs update-service --force-new-deployment. ECS performs a rolling update: spins up new tasks with new image, drains connections on old tasks, terminates old. Minimum healthy percent = 100%, max = 200% — zero downtime.')">
+  <rect x="170" y="366" width="340" height="52" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+  <text x="340" y="385" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">ECS Rolling Deploy</text>
+  <text x="340" y="402" text-anchor="middle" font-size="11" fill="#0F6E56">Zero-downtime, min 100% healthy</text>
+</g>
+
+<line x1="340" y1="418" x2="340" y2="442" stroke="#888" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+<!-- Health check wait -->
+<g onclick="info2('Wait for Service Stability','GitHub Actions runs: aws ecs wait services-stable. Polls ECS until the new task count == desired count and all health checks pass. Typically 2–3 minutes. If it times out, deployment is considered failed.')">
+  <rect x="200" y="442" width="280" height="40" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.8"/>
+  <text x="340" y="458" text-anchor="middle" font-size="12" font-weight="500" fill="#2C2C2A">Wait for Stability</text>
+  <text x="340" y="474" text-anchor="middle" font-size="11" fill="#5F5E5A">ecs wait services-stable</text>
+</g>
+
+<line x1="340" y1="482" x2="340" y2="506" stroke="#888" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+<!-- Done -->
+<g onclick="info2('Deployment Complete','Slack/email notification via GitHub Actions. Includes: commit SHA, deploy time, service URL. On failure at any step: notifications sent + optional auto-rollback by re-deploying previous task def revision.')">
+  <rect x="240" y="506" width="200" height="40" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.8"/>
+  <text x="340" y="522" text-anchor="middle" font-size="12" font-weight="500" fill="#27500A">Deploy Complete</text>
+  <text x="340" y="538" text-anchor="middle" font-size="11" fill="#3B6D11">Notify → Slack / Email</text>
+</g>
+
+<!-- Side labels for time estimates -->
+<text x="560" y="106" font-size="10" fill="#888">~3 min</text>
+<text x="560" y="242" font-size="10" fill="#888">~5 min</text>
+<text x="560" y="398" font-size="10" fill="#888">~3 min</text>
+<text x="560" y="464" font-size="10" fill="#888">~2 min</text>
+<line x1="556" y1="78" x2="556" y2="130" stroke="#ddd" stroke-width="0.5"/>
+<line x1="556" y1="214" x2="556" y2="266" stroke="#ddd" stroke-width="0.5"/>
+<line x1="556" y1="366" x2="556" y2="418" stroke="#ddd" stroke-width="0.5"/>
+<line x1="556" y1="442" x2="556" y2="482" stroke="#ddd" stroke-width="0.5"/>
+</svg>
+<div class="info-bar" id="info-cicd">Click any stage for implementation details.</div>
+</div>
+
+<!-- CHANGES TAB -->
+<div class="panel" id="tab-changes">
+<div style="padding:4px 2px">
+  <div id="changes-list"></div>
+</div>
+</div>
+
+<script>
+const changes = [
+  { tag: "Missing", color: "#A32D2D", bg: "#FCEBEB", title: "IAM Role: add ecs:DescribeTasks permission", desc: "Your current IAM policy only has ecs:RunTask and iam:PassRole. Add ecs:DescribeTasks so the web task can poll training task status and ecs:StopTask for cleanup on errors." },
+  { tag: "Missing", color: "#A32D2D", bg: "#FCEBEB", title: "ECR repositories need to be created", desc: "Create two ECR repos: mlstack/backend and mlstack/frontend. Add a lifecycle policy to expire untagged images after 7 days to control storage costs." },
+  { tag: "Missing", color: "#A32D2D", bg: "#FCEBEB", title: "No CI/CD pipeline defined", desc: "You need a GitHub Actions workflow file (.github/workflows/deploy.yml) with two jobs: pr-checks (on pull_request) and deploy (on push to main). Store AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and ECR_REGISTRY as GitHub secrets." },
+  { tag: "Missing", color: "#A32D2D", bg: "#FCEBEB", title: "No CloudWatch log groups", desc: "ECS tasks won't persist logs without pre-created log groups. Create /ecs/mlstack-web and /ecs/mlstack-training in CloudWatch. Add awslogs driver config to both task definitions." },
+  { tag: "Change", color: "#854F0B", bg: "#FAEEDA", title: "Replace MinIO with S3 native SDK", desc: "Your standalone_runner.py uses get_minio_service(). Replace with boto3 S3 client directly. MinIO is a self-hosted S3-compatible layer — unnecessary on AWS since you're using real S3." },
+  { tag: "Change", color: "#854F0B", bg: "#FAEEDA", title: "Move secrets to Secrets Manager", desc: "Remove hardcoded env vars from task definitions. Reference DB_PASSWORD, SECRET_KEY, etc. via Secrets Manager ARNs in the task def's 'secrets' block using valueFrom. Grant the task role secretsmanager:GetSecretValue." },
+  { tag: "Change", color: "#854F0B", bg: "#FAEEDA", title: "Add ALB health check endpoints", desc: "Your Flask app needs a /health route returning HTTP 200. ALB uses this to determine task health during rolling deploys. Without it, ECS can't confirm new tasks are ready." },
+  { tag: "Change", color: "#854F0B", bg: "#FAEEDA", title: "assignPublicIp: DISABLED requires NAT Gateway", desc: "Training tasks in private subnets with no public IP can't reach ECR, S3, or Secrets Manager without a NAT Gateway or VPC endpoints. Add a NAT Gateway in each AZ, or use cheaper VPC Interface Endpoints for ECR/S3/Secrets." },
+  { tag: "Add", color: "#0F6E56", bg: "#E1F5EE", title: "S3 VPC Endpoint (Gateway type)", desc: "Add an S3 Gateway endpoint to your VPC route tables. Free of charge, routes S3 traffic within AWS network — training tasks download datasets without leaving VPC or needing NAT." },
+  { tag: "Add", color: "#0F6E56", bg: "#E1F5EE", title: "CloudFront + S3 OAC for frontend", desc: "Your current doc shows CloudFront but doesn't specify Origin Access Control. Configure OAC (not the legacy OAI) so the S3 bucket denies all public access and only allows CloudFront to read it." },
+  { tag: "Add", color: "#0F6E56", bg: "#E1F5EE", title: "ECS Service Auto Scaling for web task", desc: "Add Application Auto Scaling on the web ECS service. Target tracking policy: average CPU utilization = 70%, min capacity = 1, max = 4. This handles traffic spikes without manual intervention." },
+  { tag: "Add", color: "#0F6E56", bg: "#E1F5EE", title: "Training task status polling endpoint", desc: "Flask needs a GET /experiments/{id}/status endpoint that calls ecs:DescribeTasks with the stored taskArn and returns the task's lastStatus. Frontend can poll this to show real-time training progress." },
+];
+
+const list = document.getElementById('changes-list');
+changes.forEach(c => {
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--color-border-tertiary)';
+  div.innerHTML = `
+    <span style="flex-shrink:0;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:${c.bg};color:${c.color}">${c.tag}</span>
+    <div>
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${c.title}</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">${c.desc}</div>
+    </div>`;
+  list.appendChild(div);
+});
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function info(title, text) {
+  const bar = document.getElementById('info-infra');
+  bar.innerHTML = '<strong>' + title + '</strong> — ' + text;
+}
+function info2(title, text) {
+  const bar = document.getElementById('info-cicd');
+  bar.innerHTML = '<strong>' + title + '</strong> — ' + text;
+}
+</script>
+</body>
+</html>
